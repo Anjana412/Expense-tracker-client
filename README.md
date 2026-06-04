@@ -1,78 +1,114 @@
-# Expense Tracker — Frontend
+# Expense Tracker — Frontend (MERN Stack)
 
-A React-based expense tracking application for both personal and team/office use. Built with Vite and styled with Tailwind CSS.
+A responsive expense management application built with React and Vite that helps users track personal and team expenses, manage budgets, and analyze spending patterns through interactive dashboards and reports. The application supports role-based access for Users, Admins, and Super Admins, making it suitable for both individual and organizational expense tracking.
+
+## Live Demo
+
+**Frontend:** https://expense-tracker-client-jet.vercel.app
+**Backend:** https://expense-tracker-server-wc9u.onrender.com
 
 ## Features
 
-- User authentication (login & register)
-- Personal expense management — add, edit, delete expenses
-- Team expense tracking and analytics
-- Role-based dashboards (User, Admin, Super Admin)
-- Monthly trends and category breakdowns
-- Budget management
-- Export expenses as CSV
-- Global analytics for admins
+### User Authentication
+- Secure Signup with Name, Email, and Password
+- Encrypted Passwords using bcrypt
+- JWT Authorization for secure login
+- Protected Routes based on user role
 
-## Tech Stack
+### Expense Management
+- Full CRUD: Add, Edit, Delete, and View Expenses
+- Category-wise expense tracking
+- Filter by category, date, and amount range
+- CSV Export for expense reports
 
-- React 18
+### Role-Based Access
+- **User:** Personal expense dashboard and budget management
+- **Admin:** Team expense tracking and reports
+- **Super Admin:** Global analytics across all users
+
+### Analytics & Reports
+- Monthly spending trends (line chart)
+- Category breakdown with progress bars
+- Top spenders leaderboard
+- Team and global expense analytics
+
+### User Interface
+- Responsive Design for mobile, tablet, and desktop using Tailwind CSS
+- Interactive Dashboard with real-time data
+- Smooth navigation with React Router
+
+## Technologies Used
+
+### Frontend
+- React
 - Vite
 - Tailwind CSS
 - Axios
+- React Router DOM
 - Recharts
-- React Router
+- React Toastify
 
-## Getting Started
+## Setup Instructions
 
 ### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
+- Git
 
-- Node.js v18+
-- Backend server running (see Expensetracker-server)
-
-### Installation
+### Frontend Setup
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/Expensetracker-client.git
-cd Expensetracker-client
+git clone https://github.com/Anjana412/Expense-tracker-client.git
+cd Expense-tracker-client
 npm install
-```
-
-### Environment Variables
-
-Create a `.env` file in the root:
-
-```
-VITE_API_URL=http://localhost:4000
-```
-
-### Run Locally
-
-```bash
 npm run dev
 ```
 
 App runs at `http://localhost:5173`
 
-### Build for Production
+### Environment Variables
 
-```bash
-npm run build
+Frontend `.env`:
+```env
+VITE_API_URL=http://localhost:4000
+```
+
+## Project Structure
+
+```
+src/
+├── api/
+├── assets/
+├── components/
+│   ├── layout/
+│   └── ui/
+├── images/
+├── pages/
+│   ├── Addexpense.jsx
+│   ├── Authpage.jsx
+│   ├── CreateTeam.jsx
+│   ├── Dashboard.jsx
+│   ├── Editexpense.jsx
+│   ├── Globalanalytics.jsx
+│   ├── Manageusers.jsx
+│   ├── Reports.jsx
+│   ├── Teamexpense.jsx
+│   ├── Teamreport.jsx
+│   ├── Viewexpense.jsx
+│   └── ViewTeam.jsx
+├── App.jsx
+└── main.jsx
 ```
 
 ## Deployment
 
-Deployed on **Vercel**. Set the following environment variable in your Vercel project settings:
+- **Frontend:** Vercel
+- **Backend API:** Render
 
-```
-VITE_API_URL=https://your-render-backend-url.onrender.com
-```
+## Author
 
-## Folder Structure
+**Anjana T**
 
-```
-src/
-├── components/       # Reusable UI components
-├── pages/            # Page-level components
-├── api.js            # Axios API config and all API calls
-└── main.jsx          # App entry point
-```
+Email: anjanat0001@gmail.com
+
+GitHub: https://github.com/Anjana412
