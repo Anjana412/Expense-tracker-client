@@ -31,6 +31,7 @@ const CreateTeam = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if(submitting) return;
     if (!teamName.trim()) {
       toast.error("Please enter a team name");
       return;
@@ -44,9 +45,11 @@ const CreateTeam = () => {
       await createTeam({ name: teamName.trim(), userIds: selectedIds });
       toast.success("Team created successfully");
       navigate("/viewteam");
-    } catch (err) {
+    } 
+    catch (err) {
       toast.error(err?.response?.data?.message || "Failed to create team");
-    } finally {
+    } 
+    finally {
       setSubmitting(false);
     }
   };
@@ -68,7 +71,6 @@ const CreateTeam = () => {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
-          {/* Team Name Input */}
           <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 flex flex-col gap-1.5">
             <label className="text-[11px] text-gray-400 font-medium">Team Name</label>
             <input
@@ -80,7 +82,6 @@ const CreateTeam = () => {
             />
           </div>
 
-          {/* User List */}
           <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
               <span className="text-[13px] font-medium text-gray-900">Available Users</span>
@@ -117,7 +118,6 @@ const CreateTeam = () => {
             )}
           </div>
 
-          {/* Selected Users Preview */}
           {selectedIds.length > 0 && (
             <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
               <div className="text-[12px] text-emerald-700 font-medium mb-2">

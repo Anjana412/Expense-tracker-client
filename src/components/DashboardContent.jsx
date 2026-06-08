@@ -350,8 +350,14 @@ const DashboardContent = () => {
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <h3 className="text-sm font-semibold text-gray-900">Recent Transactions</h3>
               <div className="flex gap-3">
-                <button onClick={()=>navigate("/reports")} className="text-xs text-gray-400 hover:text-gray-700 bg-transparent border-none cursor-pointer transition-colors">Reports</button>
-                <button onClick={()=>navigate("/expenses")} className="text-xs text-emerald-600 hover:text-emerald-700 bg-transparent border-none cursor-pointer transition-colors">View all</button>
+                <button onClick={()=>navigate("/reports")}
+                  className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg border-none cursor-pointer transition-colors font-medium">
+                  <i className="ti ti-chart-bar text-xs" /> Reports
+                </button>
+                <button onClick={()=>navigate("/expenses")}
+                  className="flex items-center gap-1 text-xs text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1.5 rounded-lg border border-emerald-200 cursor-pointer transition-colors font-medium">
+                  <i className="ti ti-list text-xs" /> View all
+                </button>
                 <button onClick={()=>navigate("/addexpense")} className="text-xs bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 rounded-lg border-none cursor-pointer transition-colors font-medium">+ Add</button>
               </div>
             </div>

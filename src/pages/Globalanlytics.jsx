@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import {ResponsiveContainer, LineChart, Line, XAxis, YAxis,CartesianGrid, Tooltip, BarChart, Bar, Cell,} from "recharts";
-import { getAllExpensesGlobal, getAllUsers } from "../api/api";
+import { getAllExpensesGlobal, getAllUsers,getTeams } from "../api/api";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import BackToDashboardButton from "../components/layout/BackToDashboardButton";
 import { CHART_TOOLTIP_STYLE, CHART_AXIS_TICK, CHART_GRID_STROKE } from "../components/ui/chartTheme";
@@ -41,13 +41,15 @@ const GlobalAnalytics = () => {
   const [minAmount,setMinAmount]= useState("");
   const [maxAmount,setMaxAmount]= useState("");
   const [sortBy,setSortBy]= useState("Highest spend");
+  const [teams, setTeams] =useState([]);
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([getAllExpensesGlobal(), getAllUsers()])
-      .then(([expRes, userRes]) => {
+    Promise.all([getAllExpensesGlobal(), getAllUsers(),getTeams()])
+      .then(([expRes, userRes,teamRes]) => {
         setExpenses(expRes.data);
         setUsers(userRes.data);
+        setTeams(Array.isArray(teamRes.data)?teamRes.data: []);
         setError(null);
       })
       .catch((err) => {
@@ -237,9 +239,10 @@ const GlobalAnalytics = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-5 gap-2.5">
+      <div className="grid grid-cols-6 gap-2.5">
         {[
-          { label:"Total users",value: String(totalUsers),icon: "ti-users",color: "text-blue-400"    },
+          { label:"Regsitered users",value: String(totalUsers),icon: "ti-users",color: "text-blue-400"    },
+          {label:"Teams",value:String(teams.length),icon:"ti-users-group",color:"text-violet-400"},
           { label:"Total expense",value: `₹${(totalExpense/1000).toFixed(1)}k`,icon: "ti-currency-rupee", color: "text-red-400" },
           { label:"Avg per user",value:`₹${avgPerUser.toLocaleString()}`,icon: "ti-chart-line",color: "text-emerald-400"},
           { label:"Transactions",value:String(totalTransactions),icon: "ti-file-invoice",color: "text-gray-900"},

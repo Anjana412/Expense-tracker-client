@@ -55,15 +55,13 @@ const ViewTeam = () => {
       await removeUserFromTeam(selectedTeam._id, userId);
       toast.success(`${name} removed`);
       setMembers((prev) => prev.filter((m) => m._id !== userId));
-      // update count in teams list
       setTeams((prev) =>
         prev.map((t) =>
-          t._id === selectedTeam._id
-            ? { ...t, members: t.members.filter((id) => id !== userId && id?._id !== userId) }
-            : t
+          t._id === selectedTeam._id? { ...t, members: t.members.filter((m) => m._id !== userId) }: t
         )
       );
-    } catch {
+    }
+     catch {
       toast.error("Failed to remove user");
     } finally {
       setRemovingId(null);
@@ -76,7 +74,6 @@ const ViewTeam = () => {
       await addUserToTeam(selectedTeam._id, { userId });
       toast.success(`${name} added`);
       setShowAddModal(false);
-      // refresh members
       const res = await getTeamMembers(selectedTeam._id);
       setMembers(Array.isArray(res.data) ? res.data : []);
     } catch {
@@ -104,7 +101,6 @@ const ViewTeam = () => {
   const memberIds = new Set(members.map((m) => m._id));
   const availableToAdd = allUsers.filter((u) => !memberIds.has(u._id));
 
-  // ── Team list view ──────────────────────────────────────────────
   if (!selectedTeam) {
     return (
       <DashboardLayout title="Manage Teams">
@@ -147,7 +143,6 @@ const ViewTeam = () => {
                     </button>
                   </div>
 
-                  {/* Member avatars */}
                   {team.members.length > 0 && (
                     <div className="flex -space-x-2">
                       {team.members.slice(0, 5).map((m, i) => {
@@ -180,7 +175,6 @@ const ViewTeam = () => {
     );
   }
 
-  // ── Single team detail view ─────────────────────────────────────
   return (
     <DashboardLayout title={selectedTeam.name}>
       <div className="px-4 md:px-6 py-5 max-w-4xl mx-auto w-full flex flex-col gap-5">
@@ -253,7 +247,6 @@ const ViewTeam = () => {
         </div>
       </div>
 
-      {/* Add User Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white border border-gray-200 rounded-2xl w-full max-w-md flex flex-col gap-4 p-5 shadow-xl">

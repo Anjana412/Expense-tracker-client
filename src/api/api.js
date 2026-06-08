@@ -19,10 +19,6 @@ export const getRoleRedirect = (role) => {
   return "/dashboard";
 };
 
-
-
-
-
 export const getAllUsers = () => {
   const token = localStorage.getItem("token");
   return API.get("/user/allusers", {
@@ -89,50 +85,48 @@ export const getBudget = () => {
 };
 
 
-// Teams
 export const createTeam = (data) => {
   const token = localStorage.getItem("token");
-  return API.post("/user/team", data, {
+  return API.post("/user/createteam", data, {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
 
 export const getTeams = () => {
   const token = localStorage.getItem("token");
-  return API.get("/user/teams", {
+  return API.get("/user/viewteams", {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
 
 export const getTeamMembers = (teamId) => {
   const token = localStorage.getItem("token");
-  return API.get(`/user/teammembers/${teamId}`, {
+  return API.get(`/user/viewteammembers/${teamId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
 
 export const addUserToTeam = (teamId, data) => {
   const token = localStorage.getItem("token");
-  return API.post(`/user/teammember/${teamId}`, data, {
+  return API.post(`/user/addteammember/${teamId}`, data, {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
 
 export const removeUserFromTeam = (teamId, userId) => {
   const token = localStorage.getItem("token");
-  return API.delete(`/user/teammember/${teamId}/${userId}`, {
+  return API.delete(`/user/removeteammember/${teamId}/${userId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
 
 export const deleteTeam = (teamId) => {
   const token = localStorage.getItem("token");
-  return API.delete(`/user/team/${teamId}`, {
+  return API.delete(`/user/deleteteam/${teamId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
 
-// Admins
 export const createAdmin = (data) => {
   const token = localStorage.getItem("token");
   return API.post("/user/admin/create", data, {
@@ -142,19 +136,18 @@ export const createAdmin = (data) => {
 
 export const getAdmins = () => {
   const token = localStorage.getItem("token");
-  return API.get("/user/admins", {
+  return API.get("/user/viewadmins", {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
 
 export const deleteAdmin = (id) => {
   const token = localStorage.getItem("token");
-  return API.delete(`/user/admin/${id}`, {
+  return API.delete(`/user/admin/delete/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
 
-// Team Expenses
 export const getTeamExpenses = (teamId) => {
   const token = localStorage.getItem("token");
   return API.get(`/expense/team/${teamId}`, {

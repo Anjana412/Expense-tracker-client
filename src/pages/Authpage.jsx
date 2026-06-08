@@ -41,6 +41,7 @@ const LoginForm = ({ onSwitch }) => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) =>
@@ -87,8 +88,14 @@ const LoginForm = ({ onSwitch }) => {
 
           <div className="flex flex-col gap-1">
             <label className="text-[13px] font-semibold text-gray-700">Password</label>
-            <input type="password" name="password" placeholder="••••••••"value={formData.password} onChange={handleChange} required
-              className="w-full border-[1.5px] border-gray-200 rounded-xl px-3.5 py-2.75 text-[13.5px] text-gray-800 bg-gray-50 outline-none transition-all focus:border-violet-500 focus:bg-white focus:shadow-[0_0_0_3px_rgba(124,58,237,0.12)] placeholder:text-gray-400"/>
+            <div className="relative">
+              <input type={showPassword ? "text" : "password"} name="password" placeholder="••••••••" value={formData.password} onChange={handleChange} required
+                className="w-full border-[1.5px] border-gray-200 rounded-xl px-3.5 pr-10 py-2.75 text-[13.5px] text-gray-800 bg-gray-50 outline-none transition-all focus:border-violet-500 focus:bg-white focus:shadow-[0_0_0_3px_rgba(124,58,237,0.12)] placeholder:text-gray-400"/>
+              <button type="button" onClick={() => setShowPassword(p => !p)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-gray-400 hover:text-gray-700 transition-colors p-0">
+                <i className={`ti ${showPassword ? "ti-eye-off" : "ti-eye"} text-base`} />
+              </button>
+            </div>
           </div>
 
           <div className="flex justify-end -mt-1">
@@ -109,6 +116,9 @@ const RegisterForm = ({ onSwitch }) => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmpassword: '' });
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
+  const [showPasswords, setShowPasswords] = useState({ password: false, confirmpassword: false });
+  const toggleShow = (field) => setShowPasswords(p => ({ ...p, [field]: !p[field] }));
+
   const navigate = useNavigate();
 
   const handleChange = (e) =>
@@ -138,39 +148,57 @@ const RegisterForm = ({ onSwitch }) => {
   };
 
   return (
-    <div className="w-full flex items-center justify-center p-8 md:p-12">
-      <div className="w-full max-w-85">
-        <h2 className="text-[26px] font-extrabold text-indigo-950 mb-1.5 tracking-tight">Create Account!</h2>
-        <p className="text-[13.5px] text-gray-500 mb-6"> Already have an account?{' '}
-          <button type="button" onClick={onSwitch} className="bg-transparent border-none p-0 cursor-pointer text-violet-600 font-semibold text-[13.5px] underline underline-offset-2 hover:text-violet-800 transition-colors">Log in</button>
-        </p>
+  <div className="w-full flex items-center justify-center p-8 md:p-12">
+    <div className="w-full max-w-85">
+      <h2 className="text-[26px] font-extrabold text-indigo-950 mb-1.5 tracking-tight">Create Account!</h2>
+      <p className="text-[13.5px] text-gray-500 mb-6"> Already have an account?{' '}
+        <button type="button" onClick={onSwitch} className="bg-transparent border-none p-0 cursor-pointer text-violet-600 font-semibold text-[13.5px] underline underline-offset-2 hover:text-violet-800 transition-colors">Log in</button>
+      </p>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 text-[13px] px-3.5 py-2.5 rounded-xl mb-4">{error}</div>
-        )}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-600 text-[13px] px-3.5 py-2.5 rounded-xl mb-4">{error}</div>
+      )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
-          {[
-            { label: 'Full Name',name: 'name',type: 'text',placeholder: 'John Doe' },
-            { label: 'Email',name: 'email',type: 'email',placeholder: 'you@example.com' },
-            { label: 'Password',name: 'password',type: 'password', placeholder: '••••••••' },
-            { label: 'Confirm Password', name: 'confirmpassword', type: 'password', placeholder: '••••••••' },
-          ].map(({ label, name, type, placeholder }) => (
-            <div key={name} className="flex flex-col gap-1">
-              <label className="text-[13px] font-semibold text-gray-700">{label}</label>
-              <input type={type} name={name} placeholder={placeholder} value={formData[name]} onChange={handleChange} required
-                className="w-full border-[1.5px] border-gray-200 rounded-xl px-3.5 py-2.75 text-[13.5px] text-gray-800 bg-gray-50 outline-none transition-all focus:border-violet-500 focus:bg-white focus:shadow-[0_0_0_3px_rgba(124,58,237,0.12)] placeholder:text-gray-400" />
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
+
+        <div className="flex flex-col gap-1">
+          <label className="text-[13px] font-semibold text-gray-700">Full Name</label>
+          <input type="text" name="name" placeholder="John Doe" value={formData.name} onChange={handleChange} required
+            className="w-full border-[1.5px] border-gray-200 rounded-xl px-3.5 py-2.75 text-[13.5px] text-gray-800 bg-gray-50 outline-none transition-all focus:border-violet-500 focus:bg-white focus:shadow-[0_0_0_3px_rgba(124,58,237,0.12)] placeholder:text-gray-400" />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-[13px] font-semibold text-gray-700">Email</label>
+          <input type="email" name="email" placeholder="you@example.com" value={formData.email} onChange={handleChange} required
+            className="w-full border-[1.5px] border-gray-200 rounded-xl px-3.5 py-2.75 text-[13.5px] text-gray-800 bg-gray-50 outline-none transition-all focus:border-violet-500 focus:bg-white focus:shadow-[0_0_0_3px_rgba(124,58,237,0.12)] placeholder:text-gray-400" />
+        </div>
+
+        {[
+          { label: "Password", name: "password" },
+          { label: "Confirm Password", name: "confirmpassword" },
+        ].map(({ label, name }) => (
+          <div key={name} className="flex flex-col gap-1">
+            <label className="text-[13px] font-semibold text-gray-700">{label}</label>
+            <div className="relative">
+              <input type={showPasswords[name] ? "text" : "password"} name={name} placeholder="••••••••" value={formData[name]} onChange={handleChange} required
+                className="w-full border-[1.5px] border-gray-200 rounded-xl px-3.5 pr-10 py-2.75 text-[13.5px] text-gray-800 bg-gray-50 outline-none transition-all focus:border-violet-500 focus:bg-white focus:shadow-[0_0_0_3px_rgba(124,58,237,0.12)] placeholder:text-gray-400" />
+              <button type="button" onClick={() => toggleShow(name)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-gray-400 hover:text-gray-700 transition-colors p-0">
+                <i className={`ti ${showPasswords[name] ? "ti-eye-off" : "ti-eye"} text-base`} />
+              </button>
             </div>
-          ))}
+          </div>
+        ))}
 
-          <button type="submit" disabled={loading}
-            className="w-full bg-linear-to-br from-violet-600 to-purple-500 text-white text-[14.5px] font-bold py-3.25 border-none rounded-xl cursor-pointer transition-all shadow-[0_4px_16px_rgba(124,58,237,0.35)] mt-1 flex items-center justify-center gap-2 hover:opacity-90 hover:-translate-y-px hover:shadow-[0_8px_24px_rgba(124,58,237,0.4)] active:translate-y-0 disabled:opacity-65 disabled:cursor-not-allowed">
-            {loading ? <span className="w-4.5 h-4.5 border-[2.5px] border-white/40 border-t-white rounded-full animate-spin inline-block" /> : 'Create Account'}
-          </button>
-        </form>
-      </div>
+        <button type="submit" disabled={loading}
+          className="w-full bg-linear-to-br from-violet-600 to-purple-500 text-white text-[14.5px] font-bold py-3.25 border-none rounded-xl cursor-pointer transition-all shadow-[0_4px_16px_rgba(124,58,237,0.35)] mt-1 flex items-center justify-center gap-2 hover:opacity-90 hover:-translate-y-px hover:shadow-[0_8px_24px_rgba(124,58,237,0.4)] active:translate-y-0 disabled:opacity-65 disabled:cursor-not-allowed">
+          {loading ? <span className="w-4.5 h-4.5 border-[2.5px] border-white/40 border-t-white rounded-full animate-spin inline-block" /> : 'Create Account'}
+        </button>
+
+      </form>
     </div>
-  );
+  </div>
+);
 };
 
  const AuthPage = () => {

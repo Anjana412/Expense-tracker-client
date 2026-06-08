@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { getTeams, getTeamExpenses } from "../api/api";
+import { getTeams, getTeamExpenses,getTeamMembers } from "../api/api";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import BackToDashboardButton from "../components/layout/BackToDashboardButton";
 
@@ -33,11 +33,12 @@ const TeamExpenses = () => {
   const [loadingExpenses, setLoadingExpenses] = useState(false);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
-  const [filterCat, setFilterCat] = useState("All");
+  const [filterCat,setFilterCat] = useState("All");
   const [filterUser, setFilterUser] = useState("all");
-  const [filterDate, setFilterDate] = useState("This month");
+  const [filterDate,setFilterDate] = useState("This month");
+  const [teamMembers,setTeamMembers] =useState([]);
 
-  // load teams on mount
+
   useEffect(() => {
     getTeams()
       .then((res) => {
@@ -49,28 +50,32 @@ const TeamExpenses = () => {
       .finally(() => setLoadingTeams(false));
   }, []);
 
-  // load expenses when selected team changes
-  useEffect(() => {
-    if (!selectedTeam) return;
-    setLoadingExpenses(true);
-    setError(null);
-    getTeamExpenses(selectedTeam._id)
-      .then((res) => setExpenses(res.data))
-      .catch((err) => {
-        setError(
-          err?.response?.status === 403
-            ? "You don't have permission to view team expenses."
-            : "Failed to load team expenses."
-        );
-      })
-      .finally(() => setLoadingExpenses(false));
-  }, [selectedTeam]);
 
-  const members = useMemo(() => {
-    const map = new Map();
-    expenses.forEach((e) => { if (e.userId?._id) map.set(e.userId._id, e.userId); });
-    return Array.from(map.values());
-  }, [expenses]);
+ useEffect(() => {
+  if (!selectedTeam) return;
+  setLoadingExpenses(true);
+  setError(null);
+
+  Promise.all([
+    getTeamExpenses(selectedTeam._id),
+    getTeamMembers(selectedTeam._id),   
+  ])
+    .then(([expRes, memRes]) => {
+      setExpenses(expRes.data);
+      setTeamMembers(Array.isArray(memRes.data) ? memRes.data : []);
+    })
+    .catch((err) => {
+      setError(
+        err?.response?.status === 403
+          ? "You don't have permission to view team expenses."
+          : "Failed to load team expenses."
+      );
+    })
+    .finally(() => setLoadingExpenses(false));
+}, [selectedTeam]);
+
+
+ 
 
   const filtered = useMemo(() => {
     const now = new Date();
@@ -140,7 +145,6 @@ const TeamExpenses = () => {
           </button>
         </div>
 
-        {/* Team selector tabs */}
         {teams.length > 0 && (
           <div className="flex gap-2 flex-wrap">
             {teams.map((team) => (
@@ -164,11 +168,10 @@ const TeamExpenses = () => {
           <div className="flex items-center justify-center h-40 text-gray-400 text-sm">Loading expenses…</div>
         ) : (
           <>
-            {/* Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
               {[
                 { label: "Team total", value: `₹${totalSpend.toLocaleString()}`, icon: "ti-credit-card", color: "text-gray-900" },
-                { label: "Members", value: String(members.length), icon: "ti-users", color: "text-blue-600" },
+                { label: "teamMembers", value: String(teamMembers.length), icon: "ti-users", color: "text-blue-600" },
                 { label: "Expenses shown", value: String(filtered.length), icon: "ti-file-invoice", color: "text-gray-900" },
                 { label: "Total on record", value: String(expenses.length), icon: "ti-database", color: "text-gray-500" },
               ].map((s) => (
@@ -181,12 +184,11 @@ const TeamExpenses = () => {
               ))}
             </div>
 
-            {/* Member avatars */}
-            {members.length > 0 && (
+            {teamMembers.length > 0 && (
               <div className="bg-white border border-gray-200 rounded-xl p-4">
                 <div className="text-[11px] text-gray-400 mb-3">Team members</div>
                 <div className="flex gap-2.5 flex-wrap">
-                  {members.map((m) => {
+                  {teamMembers.map((m) => {
                     const memberTotal = expenses
                       .filter((e) => e.userId?._id === m._id)
                       .reduce((s, e) => s + e.amount, 0);
@@ -207,7 +209,6 @@ const TeamExpenses = () => {
               </div>
             )}
 
-            {/* Filters */}
             <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-wrap gap-3 items-end">
               <div className="flex flex-col gap-1 flex-1 min-w-45">
                 <label className="text-[11px] text-gray-400">Search</label>
@@ -232,7 +233,7 @@ const TeamExpenses = () => {
                 <select value={filterUser} onChange={(e) => setFilterUser(e.target.value)}
                   className="px-2.5 py-2 rounded-lg bg-gray-50 border border-gray-200 text-gray-800 text-xs outline-none">
                   <option value="all">All members</option>
-                  {members.map((m) => <option key={m._id} value={m._id}>{m.name}</option>)}
+                  {teamMembers.map((m) => <option key={m._id} value={m._id}>{m.name}</option>)}
                 </select>
               </div>
               <button onClick={() => { setSearch(""); setFilterCat("All"); setFilterUser("all"); }}
@@ -241,7 +242,6 @@ const TeamExpenses = () => {
               </button>
             </div>
 
-            {/* Expenses table */}
             <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
               <div className="grid grid-cols-[2fr_1.5fr_1fr_1fr_1fr] gap-4 px-4 py-3 border-b border-gray-200">
                 {["Expense", "Member", "Category", "Amount", "Date"].map((h) => (

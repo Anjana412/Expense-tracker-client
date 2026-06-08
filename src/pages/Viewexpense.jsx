@@ -147,13 +147,10 @@ const Viewexpense = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="sticky top-0 bg-gray-50 border-b border-gray-200">
-                  <tr>
-                      {["Title", "Category", "Amount", "Date", ""].map((h) => (
-                        <th key={h || "actions"} className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide whitespace-nowrap">
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
+                 
+                    <td className="px-4 py-3 text-gray-500 max-w-40 truncate text-xs">
+                      {expense.description || <span className="text-gray-300">—</span>}
+                    </td>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {filteredExpenses.map((expense) => (
