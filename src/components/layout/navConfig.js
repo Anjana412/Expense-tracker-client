@@ -1,11 +1,11 @@
 export const NAV_CONFIG = [
-  { label: "Dashboard", icon: "ti-home", path: "/dashboard", roles: ["user", "admin", "superadmin"] },
+  { label: "Dashboard", icon: "ti-home", path: "/dashboard", roles: ["user", "admin", "superadmin"], dashboardItem:true },
   { label: "Add Expense", icon: "ti-plus", path: "/addexpense", roles: ["user", "admin", "superadmin"] },
   { label: "Reports", icon: "ti-chart-bar", path: "/reports", roles: ["user", "admin", "superadmin"] },
   { label: "Team Expenses", icon: "ti-users", path: "/team", roles: ["admin", "superadmin"], section: "Team" },
   { label: "Team Reports", icon: "ti-chart-dots", path: "/teamreports", roles: ["admin", "superadmin"] },
   { label: "Manage Team", icon: "ti-user-plus", path: "/manageteam", roles: ["admin", "superadmin"] },
-  { label: "Manage Users", icon: "ti-user-star", path: "/manageusers", roles: ["superadmin"], section: "Admin" },
+  { label: "Manage Admins", icon: "ti-shield",     path: "/superadmin/admins",    roles: ["superadmin"] },
   { label: "Analytics", icon: "ti-chart-line", path: "/analytics", roles: ["superadmin"] },
 ];
 
@@ -35,7 +35,10 @@ export function getStoredUser() {
 
 export function getVisibleNav(role) {
   const r = role || "user";
-  return NAV_CONFIG.filter((item) => item.roles.includes(r));
+  const dashPath = getDashboardPath(r);
+  return NAV_CONFIG
+    .filter((item) => item.roles.includes(r))
+    .map((item) => item.dashboardItem ? { ...item, path: dashPath } : item);
 }
 
 export function getDashboardPath(role) {

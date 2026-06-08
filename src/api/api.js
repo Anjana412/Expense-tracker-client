@@ -30,20 +30,6 @@ export const getAllUsers = () => {
   });
 };
 
-export const makeAdmin = (id) => {
-  const token = localStorage.getItem("token");
-  return API.put(`/user/makeadmin/${id}`, {}, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-};
-
-export const removeAdmin = (id) => {
-  const token = localStorage.getItem("token");
-  return API.delete(`/user/removeadmin/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-}; 
-
 
 export const addExpense = (data) => {
   const token = localStorage.getItem("token");
@@ -156,6 +142,28 @@ export const getMonthlyTrend = (year) => {
 export const getExpenseSummary = () => {
   const token = localStorage.getItem("token");
   return API.get("/expense/summary", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
+
+export const createAdmin = (data) => {
+  const token = localStorage.getItem("token");
+  return API.post("/user/admin/create", data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
+export const getAdmins = () => {
+  const token = localStorage.getItem("token");
+  return API.get("/user/admins", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
+export const deleteAdmin = (id) => {
+  const token = localStorage.getItem("token");
+  return API.delete(`/user/admin/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 };

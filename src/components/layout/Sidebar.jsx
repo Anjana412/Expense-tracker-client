@@ -20,7 +20,7 @@ const Sidebar = ({ collapsed, onToggleCollapse, user, onLogout }) => {
   console.log("Current Path:", location.pathname);
   const visibleNav = getVisibleNav(user.role);
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => location.pathname === path ||location.pathname.endsWith(path) ;
 
   let lastSection = null;
 
