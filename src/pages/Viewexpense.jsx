@@ -146,33 +146,39 @@ const Viewexpense = () => {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-gray-50 border-b border-gray-200">
-                 
-                    <td className="px-4 py-3 text-gray-500 max-w-40 truncate text-xs">
+              <thead className="sticky top-0 bg-gray-50 border-b border-gray-200">
+                <tr>
+                  {["Title", "Category", "Amount", "Date", "Description", ""].map((h) => (
+                    <th key={h || "actions"} className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide whitespace-nowrap">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {filteredExpenses.map((expense) => (
+                  <tr key={expense._id} className="hover:bg-gray-50 h-14">
+                    <td className="px-4 py-3 font-medium text-gray-900 max-w-40 truncate">{expense.title}</td>
+                    <td className="px-4 py-3">
+                      <span className="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-700">{expense.category}</span>
+                    </td>
+                    <td className="px-4 py-3 font-semibold text-red-600 whitespace-nowrap">₹{Number(expense.amount).toLocaleString()}</td>
+                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                      {new Date(expense.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                    </td>
+                    <td className="px-4 py-3 text-gray-500 max-w-48 truncate text-xs">
                       {expense.description || <span className="text-gray-300">—</span>}
                     </td>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filteredExpenses.map((expense) => (
-                    <tr key={expense._id} className="hover:bg-gray-50 h-14">
-                      <td className="px-4 py-3 font-medium text-gray-900 max-w-40 truncate">{expense.title}</td>
-                      <td className="px-4 py-3">
-                            <span className="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-700">{expense.category}</span>
-                          </td>
-                          <td className="px-4 py-3 font-semibold text-red-600 whitespace-nowrap">₹{Number(expense.amount).toLocaleString()}</td>
-                          <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
-                            {new Date(expense.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
-                          </td>
-                          <td className="px-4 py-3">
-                        <ExpenseRowActions
-                          onEdit={() => navigate(`/editexpense/${expense._id}`)}
-                          onDelete={() => handleDelete(expense._id)}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                    <td className="px-4 py-3">
+                      <ExpenseRowActions
+                        onEdit={() => navigate(`/editexpense/${expense._id}`)}
+                        onDelete={() => handleDelete(expense._id)}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
             </div>
           )}
         </div>
