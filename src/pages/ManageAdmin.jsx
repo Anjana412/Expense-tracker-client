@@ -32,6 +32,8 @@ const ManageAdmin = () => {
       try {
         setLoading(true);
         const res = await getAdmins();
+        console.log(res.data);
+        
         setAdmins(res.data);
       } catch (err) {
         if (err?.response?.status === 401) { localStorage.clear(); navigate("/"); return; }
@@ -161,9 +163,7 @@ const ManageAdmin = () => {
                   </div>
 
                   <p className="text-sm text-gray-500 truncate sm:pr-4">{admin.email}</p>
-
-                  <p className="text-xs text-gray-400">{formatDate(admin.createdAt)}</p>
-
+                    {admin.createdAt ? formatDate(admin.createdAt) : "-"}
                   <button
                     onClick={() => handleDelete(admin._id, admin.name)}
                     disabled={deletingId === admin._id}

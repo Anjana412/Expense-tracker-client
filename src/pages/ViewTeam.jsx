@@ -86,10 +86,7 @@ const ViewTeam = () => {
                 className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium border-none cursor-pointer">
                 <i className="ti ti-user-plus" /> Add User
               </button>
-            <button type="button" onClick={() => navigate("/createteam")}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-gray-200 text-gray-700 text-sm bg-white hover:bg-gray-50 cursor-pointer">
-              <i className="ti ti-users" /> Rebuild Team
-            </button>
+            
           </div>
         </div>
 

@@ -9,7 +9,6 @@ import TeamExpenses from './pages/Teamexpense';
 import TeamReports from './pages/Teamreport';
 import GlobalAnalytics from './pages/Globalanlytics';
 import Reports from './pages/Reports';
-// import Manageusers from './pages/Manageusers';
 import Viewexpense from './pages/Viewexpense';
 import CreateTeam from './pages/CreateTeam';
 import ViewTeam from './pages/ViewTeam';
@@ -36,7 +35,6 @@ function App() {
         <Route path="/viewteam"element={<ViewTeam />}/>
         <Route path="/manageteam"element={<ViewTeam />}/>
         <Route path="/analytics"element={<GlobalAnalytics />}/>
-        {/* <Route path="/manageusers"element={<Manageusers />}/> */}
         <Route path="/superadmin/admins"        element={<ManageAdmin />} />   {/* NEW */}
         <Route path="/superadmin/admins/create" element={<CreateAdmin />} />    {/* NEW */}
       
