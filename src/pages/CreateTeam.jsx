@@ -9,6 +9,7 @@ const CreateTeam = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [teamName, setTeamName] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -30,13 +31,17 @@ const CreateTeam = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!teamName.trim()) {
+      toast.error("Please enter a team name");
+      return;
+    }
     if (selectedIds.length === 0) {
       toast.error("Please select at least one user");
       return;
     }
     setSubmitting(true);
     try {
-      await createTeam({ userIds: selectedIds });
+      await createTeam({ name: teamName.trim(), userIds: selectedIds });
       toast.success("Team created successfully");
       navigate("/viewteam");
     } catch (err) {
@@ -49,7 +54,9 @@ const CreateTeam = () => {
   if (loading) {
     return (
       <DashboardLayout title="Create Team">
-        <div className="flex items-center justify-center h-64 text-gray-500 text-sm">Loading users…</div>
+        <div className="flex items-center justify-center h-64 text-gray-500 text-sm">
+          Loading users…
+        </div>
       </DashboardLayout>
     );
   }
@@ -61,9 +68,23 @@ const CreateTeam = () => {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
+          {/* Team Name Input */}
+          <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 flex flex-col gap-1.5">
+            <label className="text-[11px] text-gray-400 font-medium">Team Name</label>
+            <input
+              type="text"
+              value={teamName}
+              onChange={(e) => setTeamName(e.target.value)}
+              placeholder="e.g. Marketing, Engineering…"
+              className="text-sm text-gray-800 bg-transparent outline-none placeholder:text-gray-300"
+            />
+          </div>
+
+          {/* User List */}
           <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-              <span className="text-[13px] font-medium text-gray-900">Available Users</span><span className="text-[11px] text-gray-400">{selectedIds.length} selected</span>
+              <span className="text-[13px] font-medium text-gray-900">Available Users</span>
+              <span className="text-[11px] text-gray-400">{selectedIds.length} selected</span>
             </div>
 
             {users.length === 0 ? (
@@ -73,9 +94,11 @@ const CreateTeam = () => {
                 {users.map((user) => {
                   const isSelected = selectedIds.includes(user._id);
                   return (
-                    <label key={user._id} className={["flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors", isSelected ? "bg-emerald-50" : "hover:bg-gray-50"].join(" ")}>
-                    <input type="checkbox" checked={isSelected} onChange={() => toggleUser(user._id)}
-                        className="w-4 h-4 accent-emerald-500 cursor-pointer"/>
+                    <label key={user._id}
+                      className={["flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors",
+                        isSelected ? "bg-emerald-50" : "hover:bg-gray-50"].join(" ")}>
+                      <input type="checkbox" checked={isSelected} onChange={() => toggleUser(user._id)}
+                        className="w-4 h-4 accent-emerald-500 cursor-pointer" />
                       <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-[11px] font-semibold text-emerald-700 shrink-0">
                         {user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
                       </div>
@@ -83,7 +106,9 @@ const CreateTeam = () => {
                         <div className="text-[13px] text-gray-800 truncate">{user.name}</div>
                         <div className="text-[11px] text-gray-400 truncate">{user.email}</div>
                       </div>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">{user.role}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                        {user.role}
+                      </span>
                       {isSelected && <i className="ti ti-check text-emerald-600 text-base" />}
                     </label>
                   );
@@ -92,6 +117,7 @@ const CreateTeam = () => {
             )}
           </div>
 
+          {/* Selected Users Preview */}
           {selectedIds.length > 0 && (
             <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
               <div className="text-[12px] text-emerald-700 font-medium mb-2">
@@ -102,9 +128,11 @@ const CreateTeam = () => {
                   const u = users.find((u) => u._id === id);
                   if (!u) return null;
                   return (
-                    <span key={id} className="flex items-center gap-1.5 text-[11px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full">
+                    <span key={id}
+                      className="flex items-center gap-1.5 text-[11px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full">
                       {u.name}
-                      <button type="button" onClick={() => toggleUser(id)} className="bg-transparent border-none text-emerald-700 cursor-pointer p-0 leading-none hover:text-red-600 transition-colors">
+                      <button type="button" onClick={() => toggleUser(id)}
+                        className="bg-transparent border-none text-emerald-700 cursor-pointer p-0 leading-none hover:text-red-600 transition-colors">
                         <i className="ti ti-x text-[10px]" />
                       </button>
                     </span>
@@ -116,10 +144,10 @@ const CreateTeam = () => {
 
           <div className="flex gap-3">
             <button type="button" onClick={() => navigate(-1)}
-                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 text-gray-500 text-sm cursor-pointer bg-transparent hover:text-gray-800 hover:border-gray-300 transition-colors">
+              className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 text-gray-500 text-sm cursor-pointer bg-transparent hover:text-gray-800 hover:border-gray-300 transition-colors">
               Cancel
             </button>
-            <button type="submit" disabled={submitting || selectedIds.length === 0}
+            <button type="submit" disabled={submitting || selectedIds.length === 0 || !teamName.trim()}
               className="flex-1 px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium cursor-pointer border-none transition-colors">
               {submitting ? "Creating…" : "Create Team"}
             </button>
