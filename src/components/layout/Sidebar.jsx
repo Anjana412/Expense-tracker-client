@@ -2,10 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { getVisibleNav, getInitials, roleLabel } from "./navConfig";
 
 const NavItem = ({ item, collapsed, isActive, onNavigate }) => (
-  <button
-    type="button"
-    onClick={() => onNavigate(item.path)}
-    title={collapsed ? item.label : undefined}
+  <button type="button" onClick={() => onNavigate(item.path)} title={collapsed ? item.label : undefined}
     className={["flex items-center gap-2.5 px-2.5 py-2.25 rounded-lg cursor-pointer border-none w-full text-left whitespace-nowrap overflow-hidden text-[13px] transition-all duration-150",
       isActive ? "bg-emerald-500/15 text-emerald-600 font-medium" : "bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900",].join(" ")}>
     
@@ -17,6 +14,7 @@ const NavItem = ({ item, collapsed, isActive, onNavigate }) => (
 const Sidebar = ({ collapsed, onToggleCollapse, user, onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
+
   console.log("Current Path:", location.pathname);
   const visibleNav = getVisibleNav(user.role);
 
@@ -25,9 +23,8 @@ const Sidebar = ({ collapsed, onToggleCollapse, user, onLogout }) => {
   let lastSection = null;
 
   return (
-    <aside
-      className={["hidden md:flex flex-col bg-white border-r border-gray-200 shrink-0 h-full", "transition-[width] duration-200 ease-in-out", collapsed ? "w-15" : "w-55",].join(" ")}>
-      <div className="flex items-center gap-2.5 px-3 py-4 border-b border-gray-200 shrink-0">
+    <aside className={["hidden md:flex flex-col bg-white border-r border-gray-200 shrink-0 h-full", "transition-[width] duration-200 ease-in-out shadow-xl", collapsed ? "w-15" : "w-55",].join(" ")}>
+      <div className="flex items-center gap-2.5 px-3 py-5 border-b border-gray-200 shrink-0">
           <div className="w-8 h-8 min-w-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white text-base shrink-0">
             <i className="ti ti-wallet" />
           </div>
@@ -65,8 +62,8 @@ const Sidebar = ({ collapsed, onToggleCollapse, user, onLogout }) => {
           {!collapsed && (
             <>
               <div className="overflow-hidden flex-1 min-w-0">
-                 <p className="text-[13px] font-medium text-gray-900 truncate">{user.name}</p>
-                 <p className="text-[11px] text-gray-500">{roleLabel(user.role)}</p>
+                 <p className="text-[14px] font-medium text-gray-900 truncate">{user.name}</p>
+                 <p className="text-[12  px] text-gray-500">{roleLabel(user.role)}</p>
               </div>
               <button type="button" onClick={onLogout} title="Logout"
                 className="shrink-0 p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg border-none bg-transparent cursor-pointer transition-colors">

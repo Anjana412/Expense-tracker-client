@@ -63,7 +63,8 @@ const ViewTeam = () => {
     }
      catch {
       toast.error("Failed to remove user");
-    } finally {
+    }
+     finally {
       setRemovingId(null);
     }
   };
@@ -74,26 +75,34 @@ const ViewTeam = () => {
       await addUserToTeam(selectedTeam._id, { userId });
       toast.success(`${name} added`);
       setShowAddModal(false);
+
       const res = await getTeamMembers(selectedTeam._id);
+      
       setMembers(Array.isArray(res.data) ? res.data : []);
-    } catch {
+    } 
+    catch {
       toast.error("Failed to add user");
-    } finally {
+    } 
+    finally {
       setAddingId(null);
     }
   };
 
   const handleDeleteTeam = async (teamId, teamName) => {
+    
     if (!window.confirm(`Delete team "${teamName}"? This cannot be undone.`)) return;
     setDeletingTeamId(teamId);
+
     try {
       await deleteTeam(teamId);
       toast.success(`"${teamName}" deleted`);
       setTeams((prev) => prev.filter((t) => t._id !== teamId));
       if (selectedTeam?._id === teamId) setSelectedTeam(null);
-    } catch {
+    } 
+    catch {
       toast.error("Failed to delete team");
-    } finally {
+    } 
+    finally {
       setDeletingTeamId(null);
     }
   };
@@ -109,7 +118,7 @@ const ViewTeam = () => {
             <BackToDashboardButton />
             <button onClick={() => navigate("/createteam")}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium border-none cursor-pointer">
-              <i className="ti ti-plus" /> New Team
+              <i className="ti ti-plus"/> New Team
             </button>
           </div>
 
@@ -132,7 +141,7 @@ const ViewTeam = () => {
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="text-sm font-semibold text-gray-900">{team.name}</div>
-                      <div className="text-[11px] text-gray-400 mt-0.5">
+                      <div className="text-[12px] text-gray-500 mt-1">
                         {team.members.length} member{team.members.length !== 1 ? "s" : ""}
                       </div>
                     </div>
@@ -163,7 +172,7 @@ const ViewTeam = () => {
                   )}
 
                   <button onClick={() => openTeam(team)}
-                    className="w-full py-2 rounded-lg border border-gray-200 text-gray-600 text-xs font-medium bg-transparent hover:bg-gray-50 cursor-pointer transition-colors">
+                    className="w-full py-2 rounded-lg border border-gray-200 text-gray-600 text-xs font-medium bg-transparent hover:bg-green-200 cursor-pointer transition-colors">
                     Manage Members
                   </button>
                 </div>

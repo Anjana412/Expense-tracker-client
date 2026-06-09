@@ -127,6 +127,13 @@ export const deleteTeam = (teamId) => {
   });
 };
 
+export const getAllTeams = () => {
+  const token = localStorage.getItem("token");
+  return API.get("/user/allteams", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
 export const createAdmin = (data) => {
   const token = localStorage.getItem("token");
   return API.post("/user/admin/create", data, {

@@ -209,9 +209,9 @@ const DashboardContent = () => {
           </div>
           <div className="flex gap-2 flex-wrap">
             <input type="text" placeholder="Search..." value={searchTerm} onChange={(e)=>setSearchTerm(e.target.value)}
-              className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-800 text-sm outline-none focus:border-emerald-400 w-36 md:w-48" />
+              className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-800 text-sm outline-none focus:border-emerald-400 w-36 md:w-48" />
             <select value={selectedCategory} onChange={(e)=>setSelectedCategory(e.target.value)}
-              className="px-2 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-800 text-sm outline-none focus:border-emerald-400">
+              className="px-2 py-2 rounded-lg border border-gray-200 bg-white text-gray-800 text-sm outline-none focus:border-emerald-400">
               {["All","Food","Transport","Shopping","Health","Entertainment","Education","Bills","Other"].map(c=><option key={c}>{c}</option>)}
             </select>
             <select value={sortBy} onChange={(e)=>setSortBy(e.target.value)}
@@ -358,7 +358,7 @@ const DashboardContent = () => {
                   className="flex items-center gap-1 text-xs text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1.5 rounded-lg border border-emerald-200 cursor-pointer transition-colors font-medium">
                   <i className="ti ti-list text-xs" /> View all
                 </button>
-                <button onClick={()=>navigate("/addexpense")} className="text-xs bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 rounded-lg border-none cursor-pointer transition-colors font-medium">+ Add</button>
+                <button onClick={()=>navigate("/addexpense")} className="text-xs bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 rounded-lg border-none cursor-pointer transition-colors font-medium">Add</button>
               </div>
             </div>
             {sortedExpenses.length === 0 ? (

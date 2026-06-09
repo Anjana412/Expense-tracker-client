@@ -5,7 +5,7 @@ import DashboardLayout from "../components/layout/DashboardLayout";
 import BackToDashboardButton from "../components/layout/BackToDashboardButton";
 
 const inputClass = "w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-gray-900 text-sm outline-none placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-colors";
-const labelClass = "block mb-1.5 text-xs text-gray-600 font-semibold";
+const labelClass = "block mb-1.5 text-gray-600 font-semibold";
 
 const AddExpense = () => {
 
@@ -24,6 +24,7 @@ const AddExpense = () => {
         description: expense.description,
       });
       toast.success(res.data.message);
+
       setExpense({ title: "", amount: "", category: "", date: "", description: "" });
     } 
     catch (error) {
@@ -69,10 +70,10 @@ const AddExpense = () => {
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <button type="button"
                 onClick={() => setExpense({ title: "", amount: "", category: "", date: "", description: "" })}
-                className="flex-1 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-xl py-3 text-gray-700 text-sm font-medium cursor-pointer transition-colors">Clear
+                className="flex-1 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-xl py-3 text-gray-700  font-medium cursor-pointer transition-colors">Clear
                 </button>
               <button type="submit"
-                className="flex-1 bg-emerald-500 hover:bg-emerald-600 border-none rounded-xl py-3 text-white text-sm font-semibold cursor-pointer transition-colors shadow-sm">Save Expense
+                className="flex-1 bg-emerald-500 hover:bg-emerald-600 border-none rounded-xl py-3 text-white  font-semibold cursor-pointer transition-colors shadow-sm">Save Expense
               </button>
             </div>
           </form>

@@ -172,11 +172,12 @@ const TeamReports = () => {
                 {f}
               </button>
             ))}
-          </div>
-          <button onClick={exportCSV}
+            <button onClick={exportCSV}
             className="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-medium px-3.5 py-2 rounded-lg border-none cursor-pointer">
             <i className="ti ti-download" /> Export CSV
           </button>
+          </div>
+          
         </div>
 
         {teams.length > 0 && (
@@ -184,11 +185,8 @@ const TeamReports = () => {
             {teams.map((team) => (
               <button key={team._id} onClick={() => setSelectedTeam(team)}
                 className={["px-4 py-2 rounded-xl text-sm font-medium border cursor-pointer transition-colors",
-                  selectedTeam?._id === team._id
-                    ? "bg-emerald-500 text-white border-emerald-500"
-                    : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"].join(" ")}>
+                  selectedTeam?._id === team._id? "bg-emerald-500 text-white border-emerald-500": "bg-white text-gray-600 border-gray-200 hover:border-gray-300"].join(" ")}>
                 {team.name}
-                <span className="ml-2 text-[11px] opacity-70">{team.members.length}</span>
               </button>
             ))}
           </div>
@@ -208,7 +206,7 @@ const TeamReports = () => {
                 { label: "Active members", value: String(memberSpending.length), color: "text-emerald-400", icon: "ti-users" },
               ].map((s) => (
                 <div key={s.label} className="bg-white border border-gray-200 rounded-xl p-3.5">
-                  <div className="text-[11px] text-gray-400 mb-1.5 flex items-center gap-1.5">
+                  <div className="text-[12px] text-gray-500 mb-1.5 flex items-center gap-1.5">
                     <i className={`ti ${s.icon}`} /> {s.label}
                   </div>
                   <div className={`text-xl font-semibold truncate ${s.color}`}>{s.value}</div>

@@ -193,11 +193,11 @@ const Reports = () => {
             {label:"Highest Expense", value: highestExpense ?`₹${expenseAmount(highestExpense).toLocaleString()}` : "₹0", color: "text-red-600", bg: "bg-red-50", icon: "ti-trending-up" },
             {label: "Top Category", value: topCategory, color: "text-amber-600", bg: "bg-amber-50", icon: "ti-award" },
           ].map((s) => (
-            <div key={s.label} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow min-w-0">
+            <div key={s.label} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow hover:bg-gray-100 min-w-0">
               <div className={`w-9 h-9 rounded-lg ${s.bg} flex items-center justify-center mb-3`}>
                 <i className={`ti ${s.icon} ${s.color} text-lg`} />
               </div>
-              <p className="text-xs text-gray-600 font-medium">{s.label}</p>
+              <p className="text-[15px] text-gray-600 font-medium">{s.label}</p>
               <p className={`text-lg md:text-xl font-bold mt-1 ${s.color} truncate`}>{s.value}</p>
               {s.label === "Highest Expense" && highestExpense && (
                 <p className="text-[11px] text-gray-500 mt-0.5 truncate">{highestExpense.title}</p>
@@ -217,14 +217,14 @@ const Reports = () => {
                 {label: "Highest single",value:`₹${Number(overall.maxAmount).toLocaleString()}`, color:"text-red-600" },
               ].map((s) => (
                 <div key={s.label} className="bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 min-w-0">
-                  <p className="text-[11px] text-gray-600 mb-1">{s.label}</p>
+                  <p className="text-[13px] text-gray-700 mb-1">{s.label}</p>
                   <p className={`text-lg font-bold ${s.color} truncate`}>{s.value}</p>
                 </div>
               ))}
             </div>
            {summary.length > 0 && (
              <div className="overflow-x-auto -mx-1">
-                <table className="w-full text-xs">
+                <table className="w-full text-[14px]">
                   <thead className="sticky top-0 bg-gray-50 z-10">
                     <tr className="border-b border-gray-200">
                       {["Category", "Total", "Count", "Avg", "Max"].map((h) => (
@@ -298,7 +298,7 @@ const Reports = () => {
             <div className="py-12 text-center text-gray-500 text-sm">No transactions for the selected filters.</div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-[15px]">
                 <thead className="sticky top-0 bg-gray-50">
                  <tr className="border-b border-gray-200">
                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Title</th>
