@@ -175,7 +175,7 @@ const DashboardContent = () => {
     { label: "Budget Remaining", value:`₹${Math.max(budgetLeft, 0).toLocaleString()}`, sub: monthlyBudget > 0 ? `of ₹${monthlyBudget.toLocaleString()}` : "Set a budget", trend: budgetLeft < 0 ? "down" : "neutral", icon:"ti-target", gradient: budgetLeft < 0 ? "from-red-400 to-rose-500" : "from-violet-500 to-indigo-400" },
     { label: "Monthly Spending", value:`₹${thisMonthTotal.toLocaleString()}`, sub:`${Math.abs(monthTrend)}% vs last month`, trend: monthTrend > 0 ? "up" : monthTrend < 0 ? "down" : "neutral", icon:"ti-calendar-month", gradient:"from-blue-500 to-cyan-400" },
   ];
-  
+
   const extraCards = [
     { label: "Transactions", value:String(filteredExpenses.length), sub:`${expenses.length} total`, trend:"neutral", icon:"ti-file-invoice", gradient:"from-amber-400 to-orange-400" },
     { label: "Today",value:`₹${todayTotal.toLocaleString()}`, sub:"Today's spending", trend:"neutral", icon:"ti-clock", gradient:"from-pink-500 to-rose-400" },
@@ -304,7 +304,7 @@ const DashboardContent = () => {
               )}
             </div>
             <button type="button" onClick={() => { setBudgetInput(String(monthlyBudget)); setShowBudgetModal(true); }}
-              className="shrink-0 text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-4 py-2.5 rounded-xl cursor-pointer transition-colors">
+              className="shrink-0 text-sm font-semibold text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200 px-4 py-2.5 rounded-xl cursor-pointer transition-colors">
               Manage Budget
             </button>
           </div>
