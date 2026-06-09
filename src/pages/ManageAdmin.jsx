@@ -5,12 +5,7 @@ import { toast } from "react-toastify";
 import DashboardLayout from "../components/layout/DashboardLayout";
 
 function getInitials(name) {
-  return (name || "A")
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+  return (name || "A").split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
 }
 
 function formatDate(dateStr) {
@@ -35,10 +30,12 @@ const ManageAdmin = () => {
         console.log(res.data);
         
         setAdmins(res.data);
-      } catch (err) {
+      } 
+      catch (err) {
         if (err?.response?.status === 401) { localStorage.clear(); navigate("/"); return; }
         toast.error(err?.response?.data?.message || "Failed to load admins");
-      } finally {
+      }
+       finally {
         setLoading(false);
       }
     };
@@ -53,9 +50,11 @@ const ManageAdmin = () => {
       await deleteAdmin(id);
       toast.success(`${name}'s admin account deleted`);
       setAdmins((prev) => prev.filter((a) => a._id !== id));
-    } catch (err) {
+    } 
+    catch (err) {
       toast.error(err?.response?.data?.message || "Failed to delete admin");
-    } finally {
+    } 
+    finally {
       setDeletingId(null);
     }
   };
@@ -79,7 +78,7 @@ const ManageAdmin = () => {
           </div>
           <button
             onClick={() => navigate("/superadmin/admins/create")}
-            className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold px-4 py-2.5 rounded-xl border-none cursor-pointer transition-colors shadow-sm"
+            className="flex items-center gap-2 bg-violet-500 hover:bg-violet-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl border-none cursor-pointer transition-colors shadow-sm"
           >
             <i className="ti ti-user-plus text-sm" />
             Create Admin
@@ -126,10 +125,8 @@ const ManageAdmin = () => {
                 : "Create the first admin account to get started"}
             </p>
             {!search && (
-              <button
-                onClick={() => navigate("/superadmin/admins/create")}
-                className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2.5 rounded-xl text-sm font-semibold border-none cursor-pointer transition-colors"
-              >
+              <button onClick={() => navigate("/superadmin/admins/create")}
+                className="bg-violet-500 hover:bg-violet-700 text-white px-6 py-2.5 rounded-xl text-sm font-semibold border-none cursor-pointer transition-colors">
                 Create Admin
               </button>
             )}
