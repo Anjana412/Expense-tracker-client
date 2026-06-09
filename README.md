@@ -77,25 +77,34 @@ VITE_API_URL=http://localhost:4000
 
 ```
 src/
-├── api/
 ├── assets/
 ├── components/
 │   ├── layout/
+│   │   ├── BackToDashboard.jsx
+│   │   ├── DashboardLayout.jsx
+│   │   ├── MobileNavbar.jsx
+│   │   ├── navConfig.js
+│   │   └── Sidebar.jsx
 │   └── ui/
+│       ├── chartTheme.js
+│       ├── DashboardContent.jsx
+│       └── ExpenseRowActions.jsx
 ├── images/
 ├── pages/
 │   ├── Addexpense.jsx
 │   ├── Authpage.jsx
+│   ├── CreateAdmin.jsx
 │   ├── CreateTeam.jsx
 │   ├── Dashboard.jsx
 │   ├── Editexpense.jsx
 │   ├── Globalanalytics.jsx
-│   ├── Manageusers.jsx
+│   ├── ManageAdmin.jsx
 │   ├── Reports.jsx
 │   ├── Teamexpense.jsx
 │   ├── Teamreport.jsx
 │   ├── Viewexpense.jsx
 │   └── ViewTeam.jsx
+├── App.css
 ├── App.jsx
 └── main.jsx
 ```
