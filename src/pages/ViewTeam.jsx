@@ -117,7 +117,7 @@ const ViewTeam = () => {
           <div className="flex items-center justify-between flex-wrap gap-3">
             <BackToDashboardButton />
             <button onClick={() => navigate("/createteam")}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium border-none cursor-pointer">
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-violet-500 hover:bg-violet-700 text-white text-sm font-medium border-none cursor-pointer">
               <i className="ti ti-plus"/> New Team
             </button>
           </div>
@@ -129,7 +129,7 @@ const ViewTeam = () => {
               <i className="ti ti-users-off text-4xl text-gray-300" />
               <p className="text-gray-400 text-sm">No teams yet.</p>
               <button onClick={() => navigate("/createteam")}
-                className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm border-none cursor-pointer">
+                className="px-4 py-2 rounded-xl bg-violet-500 hover:bg-violet-600 text-white text-sm border-none cursor-pointer">
                 Create your first team
               </button>
             </div>
@@ -158,7 +158,7 @@ const ViewTeam = () => {
                         const name = m?.name ?? "?";
                         return (
                           <div key={i}
-                            className="w-7 h-7 rounded-full bg-emerald-100 border-2 border-white flex items-center justify-center text-[10px] font-semibold text-emerald-700">
+                            className="w-7 h-7 rounded-full bg-violet-100 border-2 border-white flex items-center justify-center text-[10px] font-semibold text-violet-700">
                             {name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
                           </div>
                         );
@@ -193,7 +193,7 @@ const ViewTeam = () => {
             <i className="ti ti-arrow-left text-base" /> All Teams
           </button>
           <button onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium border-none cursor-pointer">
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-violet-500 hover:bg-violet-600 text-white text-sm font-medium border-none cursor-pointer">
             <i className="ti ti-user-plus" /> Add User
           </button>
         </div>
@@ -228,7 +228,7 @@ const ViewTeam = () => {
                     <tr key={member._id} className="hover:bg-gray-50 h-14">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-[11px] font-semibold text-emerald-700 shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center text-[11px] font-semibold text-violet-700 shrink-0">
                             {member.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
                           </div>
                           <span className="font-medium text-gray-900 truncate">{member.name}</span>
@@ -282,7 +282,7 @@ const ViewTeam = () => {
                     </div>
                     <button onClick={() => handleAddUser(user._id, user.name)}
                       disabled={addingId === user._id}
-                      className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-medium border-none cursor-pointer">
+                      className="px-3 py-1.5 rounded-lg bg-violet-500 hover:bg-violet-600 disabled:opacity-50 text-white text-xs font-medium border-none cursor-pointer">
                       {addingId === user._id ? "Adding…" : "Add"}
                     </button>
                   </div>

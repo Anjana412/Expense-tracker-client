@@ -233,7 +233,7 @@ const RegisterForm = ({ onSwitch }) => {
       <div className="hidden md:flex relative w-full max-w-225 min-h-140 rounded-[28px] overflow-hidden shadow-[0_32px_80px_rgba(124,58,237,0.18),0_8px_24px_rgba(0,0,0,0.08)] bg-white">
 
         <div className="absolute inset-0 overflow-hidden rounded-[28px] z-10 pointer-events-none">
-          <div className={`pointer-events-auto absolute top-0 left-0 w-1/2 h-full bg-linear-to-br from-violet-600 to-violet-400 rounded-[28px] will-change-transform transition-transform duration-650 ease-[cubic-bezier(0.77,0,0.18,1)] ${isLogin ? '' : 'translate-x-full'}`}>
+          <div className={`pointer-events-auto absolute top-0 left-0 w-1/2 h-full bg-linear-to-br from-violet-600 to-violet-900 rounded-[28px] will-change-transform transition-transform duration-650 ease-[cubic-bezier(0.77,0,0.18,1)] ${isLogin ? '' : 'translate-x-full'}`}>
             <BrandingPanel />
           </div>
         </div>

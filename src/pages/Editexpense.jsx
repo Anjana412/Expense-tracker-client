@@ -157,7 +157,7 @@ const Editexpense = () => {
                 className="flex-1 min-w-25 bg-gray-100 border border-gray-200 rounded-lg py-2.5 text-gray-700 text-sm cursor-pointer hover:bg-gray-200"> Cancel
               </button>
               <button type="submit"
-                className={`flex-1 min-w-30 border-none rounded-lg py-2.5 text-sm font-semibold transition-colors ${isDirty ? "bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer" : "bg-gray-200 text-gray-500 cursor-not-allowed"}`}
+                className={`flex-1 min-w-30 border-none rounded-lg py-2.5 text-sm font-semibold transition-colors ${isDirty ? "bg-violet-500 hover:bg-violet-700 text-white cursor-pointer" : "bg-gray-200 text-gray-500 cursor-not-allowed"}`}
                 disabled={!isDirty}>Save changes
               </button>
             </div>

@@ -8,22 +8,18 @@ import ExpenseRowActions from "./ui/ExpenseRowActions";
 import { CHART_TOOLTIP_STYLE, CHART_AXIS_TICK, CHART_GRID_STROKE } from "./ui/chartTheme";
 
 const categoryIcon = {
-  Food:"ti-tools-kitchen-2",Transport:"ti-bus",Shopping:"ti-shopping-bag",
-  Health:"ti-heartbeat",Entertainment:"ti-music",Education:"ti-book",
-  Bills:"ti-receipt",Other:"ti-dots",
+  Food:"ti-tools-kitchen-2",Transport:"ti-bus",Shopping:"ti-shopping-bag",Health:"ti-heartbeat",Entertainment:"ti-music",Education:"ti-book",Bills:"ti-receipt",Other:"ti-dots",
 };
-const categoryBg = {
-  Food:"rgba(16,185,129,0.1)",Transport:"rgba(59,130,246,0.1)",Shopping:"rgba(245,158,11,0.1)",
-  Health:"rgba(139,92,246,0.1)",Entertainment:"rgba(248,113,113,0.1)",Education:"rgba(20,184,166,0.1)",
+
+  const categoryBg = {
+  Food:"rgba(16,185,129,0.1)",Transport:"rgba(59,130,246,0.1)",Shopping:"rgba(245,158,11,0.1)",Health:"rgba(139,92,246,0.1)",Entertainment:"rgba(248,113,113,0.1)",Education:"rgba(20,184,166,0.1)",
   Bills:"rgba(251,146,60,0.1)",Other:"rgba(100,116,139,0.1)",
 };
 const categoryColor = {
-  Food:"#10b981",Transport:"#3b82f6",Shopping:"#f59e0b",Health:"#8b5cf6",
-  Entertainment:"#f87171",Education:"#14b8a6",Bills:"#fb923c",Other:"#64748b",
+  Food:"#10b981",Transport:"#3b82f6",Shopping:"#f59e0b",Health:"#8b5cf6", Entertainment:"#f87171",Education:"#14b8a6",Bills:"#fb923c",Other:"#64748b",
 };
 const budgetLimits = {
-  Food:4000,Transport:2000,Shopping:3000,Health:1500,
-  Entertainment:1000,Education:2000,Bills:3000,Other:1000,
+  Food:4000,Transport:2000,Shopping:3000,Health:1500,Entertainment:1000,Education:2000,Bills:3000,Other:1000,
 };
 
 function formatDate(dateStr) {
@@ -165,8 +161,10 @@ const DashboardContent = () => {
   });
 
   const totalAll= filteredExpenses.reduce((s,e)=>s+e.amount,0)||1;
+
   const categoryData= Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([category,amount])=>({category,percentage:Math.round((amount/totalAll)*100),color:categoryColor[category]||"#64748b"}));
   const topCat= Object.entries(catTotals).sort((a,b)=>b[1]-a[1])[0];
+
   const avgPerExp= filteredExpenses.length ? Math.round(totalFiltered/filteredExpenses.length) : 0;
   const highestExp= filteredExpenses.reduce((mx,e)=>(e.amount>mx.amount?e:mx),{amount:0,title:"—"});
 
@@ -177,6 +175,7 @@ const DashboardContent = () => {
     { label: "Budget Remaining", value:`₹${Math.max(budgetLeft, 0).toLocaleString()}`, sub: monthlyBudget > 0 ? `of ₹${monthlyBudget.toLocaleString()}` : "Set a budget", trend: budgetLeft < 0 ? "down" : "neutral", icon:"ti-target", gradient: budgetLeft < 0 ? "from-red-400 to-rose-500" : "from-violet-500 to-indigo-400" },
     { label: "Monthly Spending", value:`₹${thisMonthTotal.toLocaleString()}`, sub:`${Math.abs(monthTrend)}% vs last month`, trend: monthTrend > 0 ? "up" : monthTrend < 0 ? "down" : "neutral", icon:"ti-calendar-month", gradient:"from-blue-500 to-cyan-400" },
   ];
+  
   const extraCards = [
     { label: "Transactions", value:String(filteredExpenses.length), sub:`${expenses.length} total`, trend:"neutral", icon:"ti-file-invoice", gradient:"from-amber-400 to-orange-400" },
     { label: "Today",value:`₹${todayTotal.toLocaleString()}`, sub:"Today's spending", trend:"neutral", icon:"ti-clock", gradient:"from-pink-500 to-rose-400" },

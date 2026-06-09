@@ -73,7 +73,7 @@ const AddExpense = () => {
                 className="flex-1 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-xl py-3 text-gray-700  font-medium cursor-pointer transition-colors">Clear
                 </button>
               <button type="submit"
-                className="flex-1 bg-emerald-500 hover:bg-emerald-600 border-none rounded-xl py-3 text-white  font-semibold cursor-pointer transition-colors shadow-sm">Save Expense
+                className="flex-1 bg-violet-500 hover:bg-violet-700 border-none rounded-xl py-3 text-white  font-semibold cursor-pointer transition-colors shadow-sm">Save Expense
               </button>
             </div>
           </form>

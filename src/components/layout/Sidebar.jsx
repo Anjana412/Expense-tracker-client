@@ -4,7 +4,7 @@ import { getVisibleNav, getInitials, roleLabel } from "./navConfig";
 const NavItem = ({ item, collapsed, isActive, onNavigate }) => (
   <button type="button" onClick={() => onNavigate(item.path)} title={collapsed ? item.label : undefined}
     className={["flex items-center gap-2.5 px-2.5 py-2.25 rounded-lg cursor-pointer border-none w-full text-left whitespace-nowrap overflow-hidden text-[13px] transition-all duration-150",
-      isActive ? "bg-emerald-500/15 text-emerald-600 font-medium" : "bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900",].join(" ")}>
+      isActive ? "bg-violet-500/15 text-violet-600 font-medium" : "bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900",].join(" ")}>
     
       <i className={`ti ${item.icon} text-[18px] min-w-5 shrink-0`} />
     {!collapsed && <span className="truncate">{item.label}</span>}
@@ -25,7 +25,7 @@ const Sidebar = ({ collapsed, onToggleCollapse, user, onLogout }) => {
   return (
     <aside className={["hidden md:flex flex-col bg-white border-r border-gray-200 shrink-0 h-full", "transition-[width] duration-200 ease-in-out shadow-xl", collapsed ? "w-15" : "w-55",].join(" ")}>
       <div className="flex items-center gap-2.5 px-3 py-5 border-b border-gray-200 shrink-0">
-          <div className="w-8 h-8 min-w-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white text-base shrink-0">
+          <div className="w-8 h-8 min-w-8 bg-violet-500 rounded-lg flex items-center justify-center text-white text-base shrink-0">
             <i className="ti ti-wallet" />
           </div>
         {!collapsed && (
@@ -56,14 +56,14 @@ const Sidebar = ({ collapsed, onToggleCollapse, user, onLogout }) => {
 
       <div className="px-2 py-3 border-t border-gray-200 shrink-0">
         <div className="flex items-center gap-2.5 px-2.5 py-2 overflow-hidden">
-          <div className="w-8 h-8 min-w-8 rounded-full bg-emerald-500 flex items-center justify-center text-xs font-semibold text-white shrink-0">
+          <div className="w-8 h-8 min-w-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-semibold text-white shrink-0">
             {getInitials(user.name)}
           </div>
           {!collapsed && (
             <>
               <div className="overflow-hidden flex-1 min-w-0">
                  <p className="text-[14px] font-medium text-gray-900 truncate">{user.name}</p>
-                 <p className="text-[12  px] text-gray-500">{roleLabel(user.role)}</p>
+                 <p className="text-[12px] text-gray-500">{roleLabel(user.role)}</p>
               </div>
               <button type="button" onClick={onLogout} title="Logout"
                 className="shrink-0 p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg border-none bg-transparent cursor-pointer transition-colors">

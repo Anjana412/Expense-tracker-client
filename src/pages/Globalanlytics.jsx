@@ -422,64 +422,43 @@ const teamStats = useMemo(() => {
        </div>
 
 
-<div className="bg-white border border-gray-200 rounded-xl p-5">
-  <div className="text-[14px] font-medium text-gray-900 mb-4">Team spending</div>
-  {teamStats.length === 0 ? (
-    <p className="text-gray-400 text-xs">No team data for this period.</p>
-  ) : (
-    <div className="flex flex-col gap-3">
-      {teamStats.map((team, i) => (
-        <div key={team.name}>
-          <div className="flex justify-between mb-1 items-center">
-            <span className="text-xs text-gray-800 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full inline-block shrink-0" style={{ background: team.color }} />
-              {team.name}
-            </span>
-            <span className="text-[11px] text-gray-400">
-              {team.members} members · {team.count} txns
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 h-1.5 bg-gray-100 rounded overflow-hidden">
-              <div
-                className="h-full rounded transition-[width] duration-300"
-                style={{
-                  width: `${teamStats[0].amount ? Math.round((team.amount / teamStats[0].amount) * 100) : 0}%`,
-                  background: team.color,
-                }}
-              />
-            </div>
-            <span className="text-[13px] font-medium text-gray-900 shrink-0">
-              ₹{(team.amount / 1000).toFixed(1)}k
-            </span>
-          </div>
-        </div>
-      ))}
-    </div>
-  )}
-</div>
-        {/* <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="text-[14px] font-medium text-gray-900 mb-4">Leaderboard</div>
-          {topSpenders.length === 0 ? (
-            <p className="text-gray-400 text-xs">No data for this period.</p>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {topSpenders.map((u, i) => (
-                <div key={u.name} className="flex items-center gap-2.5 px-2.5 py-2 bg-gray-50 rounded-lg">
-                  <span className="text-[13px] font-medium min-w-5" style={{ color: u.color }}>#{i+1}</span>
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-medium text-white shrink-0" style={{ background: u.color }}> 
-                    {u.initials}
+      <div className="bg-white border border-gray-200 rounded-xl p-5">
+        <div className="text-[14px] font-medium text-gray-900 mb-4">Team spending</div>
+        {teamStats.length === 0 ? (
+          <p className="text-gray-400 text-xs">No team data for this period.</p>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {teamStats.map((team, i) => (
+              <div key={team.name}>
+                <div className="flex justify-between mb-1 items-center">
+                  <span className="text-xs text-gray-800 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full inline-block shrink-0" style={{ background: team.color }} />
+                  {team.name}
+                </span>
+                <span className="text-[11px] text-gray-400">
+                  {team.members} members · {team.count} txns
+                    </span>
                   </div>
-                  <div className="flex-1 overflow-hidden">
-                   <div className="text-xs text-gray-800 truncate">{u.name}</div>
-                  <div className="text-[11px] text-gray-400">{u.count} transactions</div>
-                  </div>
-                  <div className="text-[13px] font-medium text-gray-900">₹{(u.spent/1000).toFixed(1)}k</div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 bg-gray-100 rounded overflow-hidden">
+                      <div
+                        className="h-full rounded transition-[width] duration-300"
+                    style={{
+                      width: `${teamStats[0].amount ? Math.round((team.amount / teamStats[0].amount) * 100) : 0}%`,
+                      background: team.color,
+                    }}
+                  />
                 </div>
-              ))}
+                <span className="text-[13px] font-medium text-gray-900 shrink-0">
+                  ₹{(team.amount / 1000).toFixed(1)}k
+                </span>
+              </div>
             </div>
-          )}
-        </div> */}
+          ))}
+        </div>
+      )}
+    </div>
+  
 
         <div className="bg-white border border-gray-200 rounded-xl p-5">
           <div className="text-[14px] font-medium text-gray-900 mb-3.5">Recent activity</div>
