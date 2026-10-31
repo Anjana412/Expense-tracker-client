@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getAdmins, deleteAdmin } from "../api/api";
 import { toast } from "react-toastify";
 import DashboardLayout from "../components/layout/DashboardLayout";
+import { useConfirm } from "../components/ui/ConfirmDialog";
 
 function getInitials(name) {
   return (name || "A").split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
@@ -17,6 +18,7 @@ function formatDate(dateStr) {
 const ManageAdmin = () => {
   const navigate = useNavigate();
 
+  const { confirm, ConfirmModal } = useConfirm();
   const [admins,     setAdmins]     = useState([]);
   const [loading,    setLoading]    = useState(true);
   const [deletingId, setDeletingId] = useState(null);
@@ -25,14 +27,11 @@ const ManageAdmin = () => {
   useEffect(() => {
     const fetchAdmins = async () => {
       try {
-        setLoading(true);
         const res = await getAdmins();
-        console.log(res.data);
-        
         setAdmins(res.data);
       } 
       catch (err) {
-        if (err?.response?.status === 401) { localStorage.clear(); navigate("/"); return; }
+        if (err?.response?.status === 401) { localStorage.clear(); navigate("/login"); return; }
         toast.error(err?.response?.data?.message || "Failed to load admins");
       }
        finally {
@@ -40,10 +39,10 @@ const ManageAdmin = () => {
       }
     };
     fetchAdmins();
-  }, []);
+  }, [navigate]);
 
   const handleDelete = async (id, name) => {
-    if (!window.confirm(`Delete admin account for ${name}? This cannot be undone.`)) return;
+    if (!(await confirm({ title: "Delete admin account?", message: `${name}'s admin account will be permanently deleted, together with any company workspaces they own and those workspaces' expenses. This cannot be undone.`, confirmLabel: "Delete", danger: true }))) return;
 
     setDeletingId(id);
     try {
@@ -182,6 +181,7 @@ const ManageAdmin = () => {
           Showing {filtered.length} of {admins.length} admin accounts
         </p>
       </div>
+      <ConfirmModal />
     </DashboardLayout>
   );
 };

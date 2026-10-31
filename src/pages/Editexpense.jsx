@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getSingleExpense, updateExpense, deleteExpense } from "../api/api";
 import { toast } from "react-toastify";
+import { toDateInput, errMsg } from "../utils/format";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import BackToDashboardButton from "../components/layout/BackToDashboardButton";
+import { useConfirm } from "../components/ui/ConfirmDialog";
+
 
 const categories = ["Food", "Transport", "Shopping", "Bills", "Health", "Education", "Entertainment", "Other"];
 
@@ -13,6 +16,7 @@ const labelClass ="block mb-1.5 text-xs text-gray-600 font-semibold";
 const Editexpense = () => {
   const {id} = useParams();
   const navigate = useNavigate();
+  const { confirm, ConfirmModal } = useConfirm();
 
   const [expense, setExpense] = useState({
     title: "", amount: "", category: "", date: "", description: "",
@@ -21,6 +25,7 @@ const Editexpense = () => {
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const fetchExpense = async () => {
@@ -30,7 +35,7 @@ const Editexpense = () => {
           title: res.data.title,
           amount: String(res.data.amount),
           category: res.data.category,
-          date: res.data.date.slice(0, 10),
+          date: toDateInput(res.data.date),
           description: res.data.description || "",
         });
       } 
@@ -53,19 +58,29 @@ const Editexpense = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (saving) return;
+    setSaving(true);
     try {
-      const res = await updateExpense(id, { ...expense, amount: Number(expense.amount) });
+      const res = await updateExpense(id, {
+        title: expense.title.trim(),
+        amount: Number(expense.amount),
+        category: expense.category,
+        date: expense.date,
+        description: expense.description,
+      });
       toast.success(res.data.message);
       setIsDirty(false);
       setSaved(true);
     } 
     catch (error) {
-      toast.error(error.response?.data?.message || "Update failed");
+      toast.error(errMsg(error, "Update failed"));
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Delete this expense? This cannot be undone.")) return;
+    if (!(await confirm({ title: "Delete expense?", message: "This cannot be undone.", confirmLabel: "Delete", danger: true }))) return;
     setDeleting(true);
     try {
       const res = await deleteExpense(id);
@@ -85,7 +100,7 @@ const Editexpense = () => {
         title: res.data.title,
         amount: String(res.data.amount),
         category: res.data.category,
-        date: res.data.date.slice(0, 10),
+        date: toDateInput(res.data.date),
         description: res.data.description || "",
       });
       setIsDirty(false);
@@ -118,16 +133,16 @@ const Editexpense = () => {
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className={labelClass}>Expense title</label>
-              <input type="text" name="title" value={expense.title} onChange={handleChange} placeholder="e.g. Swiggy order" required className={inputClass} />
+              <label htmlFor="ed-title" className={labelClass}>Expense title</label>
+              <input id="ed-title" type="text" name="title" maxLength={100} value={expense.title} onChange={handleChange} placeholder="e.g. Swiggy order" required className={inputClass} />
             </div>
             <div>
-              <label className={labelClass}>Amount (₹)</label>
-              <input type="number" name="amount" value={expense.amount} onChange={handleChange} placeholder="0" required className={inputClass} />
+              <label htmlFor="ed-amount" className={labelClass}>Amount (₹)</label>
+              <input id="ed-amount" type="number" name="amount" value={expense.amount} onChange={handleChange} placeholder="0.00" required min="0.01" step="0.01" className={inputClass} />
             </div>
             <div>
-              <label className={labelClass}>Category</label>
-              <select name="category" value={expense.category} onChange={handleChange} required className={inputClass}>
+              <label htmlFor="ed-category" className={labelClass}>Category</label>
+              <select id="ed-category" name="category" value={expense.category} onChange={handleChange} required className={inputClass}>
                 <option value="">Select category</option>
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>{cat}</option>
@@ -135,16 +150,16 @@ const Editexpense = () => {
               </select>
             </div>
             <div>
-              <label className={labelClass}>Date</label>
-              <input type="date" name="date" value={expense.date} onChange={handleChange} required className={inputClass} />
+              <label htmlFor="ed-date" className={labelClass}>Date</label>
+              <input id="ed-date" type="date" name="date" value={expense.date} onChange={handleChange} required className={inputClass} />
             </div>
             <div>
-              <label className={labelClass}>Description (optional)</label>
-              <textarea rows={3} name="description" value={expense.description} onChange={handleChange} placeholder="Add a note…" className={`${inputClass} resize-none`} />
+              <label htmlFor="ed-desc" className={labelClass}>Description (optional)</label>
+              <textarea id="ed-desc" rows={3} name="description" value={expense.description} onChange={handleChange} placeholder="Add a note…" className={`${inputClass} resize-none`} />
             </div>
 
             <div className="flex flex-wrap gap-2.5 mt-1">
-              <button type="button" onClick={handleDelete} disabled={deleting} title="Delete expense"
+              <button type="button" onClick={handleDelete} disabled={deleting} title="Delete expense" aria-label="Delete expense"
                 className="p-2.5 text-red-600 hover:bg-red-50 rounded-lg border border-red-200 bg-white cursor-pointer disabled:opacity-50">
                 <i className="ti ti-trash text-lg" />
               </button>
@@ -158,7 +173,7 @@ const Editexpense = () => {
               </button>
               <button type="submit"
                 className={`flex-1 min-w-30 border-none rounded-lg py-2.5 text-sm font-semibold transition-colors ${isDirty ? "bg-violet-500 hover:bg-violet-700 text-white cursor-pointer" : "bg-gray-200 text-gray-500 cursor-not-allowed"}`}
-                disabled={!isDirty}>Save changes
+                disabled={!isDirty || saving}>{saving ? "Saving…" : "Save changes"}
               </button>
             </div>
             {isDirty && (
@@ -167,6 +182,7 @@ const Editexpense = () => {
           </form>
         </div>
       </div>
+      <ConfirmModal />
     </DashboardLayout>
   );
 };

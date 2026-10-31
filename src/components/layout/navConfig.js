@@ -2,10 +2,9 @@ export const NAV_CONFIG = [
   { label: "Dashboard", icon: "ti-home", path: "/dashboard", roles: ["user", "admin", "superadmin"], dashboardItem:true },
   { label: "Add Expense", icon: "ti-plus", path: "/addexpense", roles: ["user", "admin", "superadmin"] },
   { label: "Reports", icon: "ti-chart-bar", path: "/reports", roles: ["user", "admin", "superadmin"] },
-  { label: "Team Expenses", icon: "ti-users", path: "/team", roles: ["admin"], section: "Team" },
-  { label: "Team Reports", icon: "ti-chart-dots", path: "/teamreports", roles: ["admin"] },
-  { label: "Manage Team", icon: "ti-user-plus", path: "/manageteam", roles: ["admin"] },
+  { label: "Workspaces", icon: "ti-building", path: "/workspaces", roles: ["user", "admin"], section: "Company" },
   { label: "Manage Admins", icon: "ti-shield",     path: "/superadmin/admins",    roles: ["superadmin"] },
+  { label: "All Workspaces", icon: "ti-building-community", path: "/superadmin/workspaces", roles: ["superadmin"] },
   { label: "Analytics", icon: "ti-chart-line", path: "/analytics", roles: ["superadmin"] },
 ];
 

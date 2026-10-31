@@ -15,12 +15,10 @@ const Sidebar = ({ collapsed, onToggleCollapse, user, onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  console.log("Current Path:", location.pathname);
   const visibleNav = getVisibleNav(user.role);
 
-  const isActive = (path) => location.pathname === path ||location.pathname.endsWith(path) ;
+  const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + "/");
 
-  let lastSection = null;
 
   return (
     <aside className={["hidden md:flex flex-col bg-white border-r border-gray-200 shrink-0 h-full", "transition-[width] duration-200 ease-in-out shadow-xl", collapsed ? "w-15" : "w-55",].join(" ")}>
@@ -38,9 +36,9 @@ const Sidebar = ({ collapsed, onToggleCollapse, user, onLogout }) => {
       </div>
 
      <nav className="flex-1 px-2 py-3 flex flex-col gap-0.5 overflow-y-auto overflow-x-hidden">
-        {visibleNav.map((item) => {
-         const showSection = item.section && item.section !== lastSection;
-          if (showSection) lastSection = item.section;
+        {visibleNav.map((item, idx) => {
+         const prevSection = visibleNav.slice(0, idx).reverse().find((i) => i.section)?.section;
+         const showSection = item.section && item.section !== prevSection;
           return (
             <div key={item.label}>
               {showSection && !collapsed && (

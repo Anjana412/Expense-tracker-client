@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getExpenses, deleteExpense, getBudget, updateBudget } from "../api/api";
+import { getExpenses, deleteExpense, getBudget, updateBudget, getMyInvitations } from "../api/api";
 import { toast } from "react-toastify";
 import {ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, CartesianGrid,} from "recharts";
 import DashboardLayout from "./layout/DashboardLayout";
 import ExpenseRowActions from "./ui/ExpenseRowActions";
+import { useConfirm } from "./ui/ConfirmDialog";
 import { CHART_TOOLTIP_STYLE, CHART_AXIS_TICK, CHART_GRID_STROKE } from "./ui/chartTheme";
+import { formatINR, dateKey, localDateKey, monthOf, yearOf } from "../utils/format";
 
 const categoryIcon = {
   Food:"ti-tools-kitchen-2",Transport:"ti-bus",Shopping:"ti-shopping-bag",Health:"ti-heartbeat",Entertainment:"ti-music",Education:"ti-book",Bills:"ti-receipt",Other:"ti-dots",
@@ -18,29 +20,18 @@ const categoryIcon = {
 const categoryColor = {
   Food:"#10b981",Transport:"#3b82f6",Shopping:"#f59e0b",Health:"#8b5cf6", Entertainment:"#f87171",Education:"#14b8a6",Bills:"#fb923c",Other:"#64748b",
 };
-const budgetLimits = {
-  Food:4000,Transport:2000,Shopping:3000,Health:1500,Entertainment:1000,Education:2000,Bills:3000,Other:1000,
-};
-
 function formatDate(dateStr) {
-  const date = new Date(dateStr), today = new Date(), yesterday = new Date();
-
-  yesterday.setDate(today.getDate() - 1);
-  if (date.toDateString() === today.toDateString()) return "Today";
-  if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
-  return date.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
-}
-function budgetBarColor(spent, limit) {
-  const pct = (spent / limit) * 100;
-  return pct >= 100 ? "#f87171" : pct >= 80 ? "#f59e0b" : "#10b981";
+  const key = dateKey(dateStr);
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (key === localDateKey()) return "Today";
+  if (key === localDateKey(yesterday)) return "Yesterday";
+  return new Date(dateStr).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "UTC" });
 }
 
 const DashboardContent = () => {
   const navigate = useNavigate();
-
-  let storedUser = {};
-  try { storedUser = JSON.parse(localStorage.getItem("user") || "{}"); } catch {}
-  const user = { name:storedUser.name || "User", role: storedUser.role || "user" };
+  const { confirm, ConfirmModal } = useConfirm();
 
   const [activeFilter,setActiveFilter]= useState("This month");
   const [searchTerm,setSearchTerm]= useState("");
@@ -53,32 +44,38 @@ const DashboardContent = () => {
   const [showBudgetModal,setShowBudgetModal]= useState(false);
   const [budgetInput,setBudgetInput]= useState("");
   const [showAllCards,setShowAllCards]= useState(false);
+  const [inviteCount,setInviteCount]= useState(0);
 
   useEffect(() => {
     const load = async () => {
       const token = localStorage.getItem("token");
-      if (!token) { navigate("/"); return; }
+      if (!token) { navigate("/login"); return; }
       try {
         const r = await getExpenses();
         setExpenses(r.data);
       } 
       catch (e) {
-        if (e.response?.status === 401) { localStorage.clear(); navigate("/"); return; }
+        if (e.response?.status === 401) { localStorage.clear(); navigate("/login"); return; }
         toast.error("Failed to load expenses");
       }
+
+      try {
+        const inv = await getMyInvitations();
+        setInviteCount(Array.isArray(inv.data) ? inv.data.length : 0);
+      } catch { /* invitations are optional on the dashboard */ }
 
       try {
         const r = await getBudget();
         setMonthlyBudget(r.data?.monthlyBudget ?? 0);
       }
        catch (e) {
-        if (e.response?.status === 401) { localStorage.clear(); navigate("/"); return; }
+        if (e.response?.status === 401) { localStorage.clear(); navigate("/login"); return; }
         setMonthlyBudget(0);
       } 
       finally { setLoading(false); }
     };
     load();
-  }, []);
+  }, [navigate]);
 
   const handleSaveBudget = async () => {
     const budget = Number(budgetInput);
@@ -90,13 +87,13 @@ const DashboardContent = () => {
       setShowBudgetModal(false);
     }
      catch (e) {
-      if (e.response?.status === 401) { localStorage.clear(); navigate("/"); return; }
+      if (e.response?.status === 401) { localStorage.clear(); navigate("/login"); return; }
       toast.error("Failed to update budget");
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this expense?")) return;
+    if (!(await confirm({ title: "Delete expense?", message: "This expense will be permanently removed.", confirmLabel: "Delete", danger: true }))) return;
     setDeletingId(id);
     try {
       const r = await deleteExpense(id);
@@ -104,7 +101,7 @@ const DashboardContent = () => {
       setExpenses((p) => p.filter((e) => e._id !== id));
     }
      catch (e) {
-      if (e.response?.status === 401) { localStorage.clear(); navigate("/"); return; }
+      if (e.response?.status === 401) { localStorage.clear(); navigate("/login"); return; }
       toast.error(e.response?.data?.message || "Delete failed");
     } 
     finally { setDeletingId(null); }
@@ -116,11 +113,11 @@ const DashboardContent = () => {
   const lstY = curM === 0 ? curY - 1 : curY;
 
   const filteredExpenses = expenses.filter((e) => {
-    const d = new Date(e.date);
+    const m = monthOf(e.date), y = yearOf(e.date);
     const dateOk =
-      activeFilter === "This month" ? d.getMonth() === curM && d.getFullYear() === curY :
-      activeFilter === "Last month" ? d.getMonth() === lstM && d.getFullYear() === lstY :
-      activeFilter === "This year"  ? d.getFullYear() === curY : true;
+      activeFilter === "This month" ? m === curM && y === curY :
+      activeFilter === "Last month" ? m === lstM && y === lstY :
+      activeFilter === "This year"  ? y === curY : true;
     return (e.title || "").toLowerCase().includes(searchTerm.toLowerCase())&& dateOk&& (selectedCategory === "All" || e.category === selectedCategory);
    });
 
@@ -133,56 +130,54 @@ const DashboardContent = () => {
   });
 
   const totalFiltered= filteredExpenses.reduce((s, e) => s + e.amount, 0);
-  const budgetLeft= monthlyBudget - totalFiltered;
-  const budgetUsedPct= monthlyBudget > 0 ? Math.round((totalFiltered / monthlyBudget) * 100) : 0;
+  
+  const monthTotal = (m, y) => expenses.filter((e) => monthOf(e.date) === m && yearOf(e.date) === y).reduce((s, e) => s + e.amount, 0);
+  const thisMonthTotal = monthTotal(curM, curY);
+  const lastMonthTotal = monthTotal(lstM, lstY);
+  // null = nothing to compare against (avoid a misleading "+100%")
+  const monthTrend = lastMonthTotal === 0 ? (thisMonthTotal === 0 ? 0 : null) : Math.round(((thisMonthTotal - lastMonthTotal) / lastMonthTotal) * 100);
 
-  const thisMonthTotal= expenses.filter((e) => {const d = new Date(e.date); return d.getMonth()===curM&&d.getFullYear()===curY; }).reduce((s,e)=>s+e.amount,0);
-  const lastMonthTotal= expenses.filter((e) => {const d = new Date(e.date); return d.getMonth()===lstM&&d.getFullYear()===lstY; }).reduce((s,e)=>s+e.amount,0);
-  const monthTrend= lastMonthTotal===0 ? 100 : Math.round(((thisMonthTotal-lastMonthTotal)/lastMonthTotal)*100);
-  const todayTotal= expenses.filter((e)=>new Date(e.date).toDateString()===now.toDateString()).reduce((s,e)=>s+e.amount,0);
+  // Budget is a MONTHLY cap: always compared with this month's spending, whatever filter is selected.
+  const budgetLeft = monthlyBudget - thisMonthTotal;
+  const budgetUsedPct = monthlyBudget > 0 ? Math.round((thisMonthTotal / monthlyBudget) * 100) : 0;
 
-  const sow = new Date(); sow.setDate(sow.getDate()-sow.getDay());
-  const weekTotal= expenses.filter((e)=>new Date(e.date)>=sow).reduce((s,e)=>s+e.amount,0);
+  const todayKey = localDateKey();
+  const todayTotal = expenses.filter((e) => dateKey(e.date) === todayKey).reduce((s, e) => s + e.amount, 0);
+
+  // week = Sunday..today (future-dated expenses are not "this week so far")
+  const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+  const weekStartKey = localDateKey(weekStart);
+  const weekTotal = expenses.filter((e) => { const k = dateKey(e.date); return k >= weekStartKey && k <= todayKey; }).reduce((s, e) => s + e.amount, 0);
 
   const catTotals = {};
   filteredExpenses.forEach((e) => { catTotals[e.category] = (catTotals[e.category]||0)+e.amount; });
-  const spentByCat = {};
-
-  filteredExpenses.forEach((e) => { spentByCat[e.category] = (spentByCat[e.category]||0)+e.amount; });
-
-  const budgetItems = Object.keys(budgetLimits)
-    .map((cat)=>({category:cat,spent:spentByCat[cat]||0,limit:budgetLimits[cat]}))
-    .filter((i)=>i.spent>0);
 
   const monthlyData = Array.from({length:6},(_,i)=>{
     const d=new Date(curY,curM-(5-i),1),m=d.getMonth(),y=d.getFullYear();
 
-    return {month:d.toLocaleDateString("en-IN",{month:"short"}),amount:expenses.filter((e)=>{const ed=new Date(e.date);return ed.getMonth()===m&&ed.getFullYear()===y;}).reduce((s,e)=>s+e.amount,0)};
+    return {month:d.toLocaleDateString("en-IN",{month:"short"}),amount:expenses.filter((e)=>monthOf(e.date)===m&&yearOf(e.date)===y).reduce((s,e)=>s+e.amount,0)};
   });
 
   const totalAll= filteredExpenses.reduce((s,e)=>s+e.amount,0)||1;
 
   const categoryData= Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([category,amount])=>({category,percentage:Math.round((amount/totalAll)*100),color:categoryColor[category]||"#64748b"}));
-  const topCat= Object.entries(catTotals).sort((a,b)=>b[1]-a[1])[0];
 
-  const avgPerExp= filteredExpenses.length ? Math.round(totalFiltered/filteredExpenses.length) : 0;
-  const highestExp= filteredExpenses.reduce((mx,e)=>(e.amount>mx.amount?e:mx),{amount:0,title:"—"});
 
 
 
   const primaryCards = [
-    { label: "Total Expenses", value:`₹${totalFiltered.toLocaleString()}`, sub: activeFilter, trend:"neutral", icon:"ti-credit-card", gradient:"from-emerald-500 to-teal-400" },
-    { label: "Budget Remaining", value:`₹${Math.max(budgetLeft, 0).toLocaleString()}`, sub: monthlyBudget > 0 ? `of ₹${monthlyBudget.toLocaleString()}` : "Set a budget", trend: budgetLeft < 0 ? "down" : "neutral", icon:"ti-target", gradient: budgetLeft < 0 ? "from-red-400 to-rose-500" : "from-violet-500 to-indigo-400" },
-    { label: "Monthly Spending", value:`₹${thisMonthTotal.toLocaleString()}`, sub:`${Math.abs(monthTrend)}% vs last month`, trend: monthTrend > 0 ? "up" : monthTrend < 0 ? "down" : "neutral", icon:"ti-calendar-month", gradient:"from-blue-500 to-cyan-400" },
+    { label: "Total Expenses", value:`${formatINR(totalFiltered)}`, sub: activeFilter, trend:"neutral", icon:"ti-credit-card", gradient:"from-emerald-500 to-teal-400" },
+    { label: "Budget Remaining (this month)", value:`${formatINR(Math.max(budgetLeft, 0))}`, sub: monthlyBudget > 0 ? `of ${formatINR(monthlyBudget)}` : "Set a budget", trend: budgetLeft < 0 ? "down" : "neutral", icon:"ti-target", gradient: budgetLeft < 0 ? "from-red-400 to-rose-500" : "from-violet-500 to-indigo-400" },
+    { label: "Monthly Spending", value:`${formatINR(thisMonthTotal)}`, sub: monthTrend === null ? "No spending last month" : `${Math.abs(monthTrend)}% vs last month`, trend: monthTrend === null ? "neutral" : monthTrend > 0 ? "up" : monthTrend < 0 ? "down" : "neutral", icon:"ti-calendar-month", gradient:"from-blue-500 to-cyan-400" },
   ];
 
   const extraCards = [
     { label: "Transactions", value:String(filteredExpenses.length), sub:`${expenses.length} total`, trend:"neutral", icon:"ti-file-invoice", gradient:"from-amber-400 to-orange-400" },
-    { label: "Today",value:`₹${todayTotal.toLocaleString()}`, sub:"Today's spending", trend:"neutral", icon:"ti-clock", gradient:"from-pink-500 to-rose-400" },
-    { label: "This Week",value:`₹${weekTotal.toLocaleString()}`,sub:"Weekly total",trend:"neutral", icon:"ti-calendar-week", gradient:"from-indigo-500 to-purple-400" },
+    { label: "Today",value:`${formatINR(todayTotal)}`, sub:"Today's spending", trend:"neutral", icon:"ti-clock", gradient:"from-pink-500 to-rose-400" },
+    { label: "This Week",value:`${formatINR(weekTotal)}`,sub:"Weekly total",trend:"neutral", icon:"ti-calendar-week", gradient:"from-indigo-500 to-purple-400" },
   ];
 
-  const dashTitle = user.role==="superadmin" ? "Global Dashboard" : user.role==="admin"? "Admin Dashboard" :"My Dashboard";
+  const dashTitle = "My Dashboard";
 
   if (loading) return (
     <DashboardLayout title={dashTitle}>
@@ -195,6 +190,13 @@ const DashboardContent = () => {
   return (
     <DashboardLayout title={dashTitle}>
       <div className="px-4 md:px-6 py-5 flex flex-col gap-5 max-w-7xl mx-auto w-full">
+
+        {inviteCount > 0 && (
+          <div role="status" className="bg-violet-50 border border-violet-200 text-violet-900 rounded-xl px-4 py-3 text-sm flex flex-wrap items-center justify-between gap-2">
+            <span>You have {inviteCount} workspace {inviteCount === 1 ? "invitation" : "invitations"} waiting.</span>
+            <button type="button" onClick={()=>navigate("/workspaces")} className="font-semibold text-violet-700 underline bg-transparent border-none cursor-pointer">View invitations</button>
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-2 items-center justify-between">
           <div className="flex gap-1.5 flex-wrap">
@@ -295,11 +297,11 @@ const DashboardContent = () => {
             <div className="min-w-0">
               <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">Budget Overview</p>
               <p className="text-xl font-bold text-gray-900 mt-1 truncate">
-                {monthlyBudget > 0? `₹${(budgetLeft < 0 ? 0 : budgetLeft).toLocaleString()} Remaining`: "No budget set"}
+                {monthlyBudget > 0? `${formatINR((budgetLeft < 0 ? 0 : budgetLeft))} Remaining`: "No budget set"}
                 </p>
               {monthlyBudget > 0 && (
                 <p className="text-xs text-gray-500 mt-0.5">
-                  {budgetUsedPct}% used · ₹{totalFiltered.toLocaleString()} spent
+                  {budgetUsedPct}% of this month's budget used · {formatINR(thisMonthTotal)} spent
                 </p>
               )}
             </div>
@@ -309,7 +311,7 @@ const DashboardContent = () => {
             </button>
           </div>
 
-          <div className="hidden sm:grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-4">
             <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
               <h3 className="text-sm font-semibold text-gray-900 mb-4">Monthly Spending Trend</h3>
               <div className="h-55">
@@ -318,7 +320,7 @@ const DashboardContent = () => {
                     <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} vertical={false} />
                     <XAxis dataKey="month" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />
                     <YAxis tick={CHART_AXIS_TICK} tickFormatter={(v)=>`₹${(v/1000).toFixed(0)}k`} axisLine={false} tickLine={false} />
-                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} formatter={(v)=>[`₹${Number(v).toLocaleString()}`,"Spent"]} />
+                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} formatter={(v)=>[`${formatINR(Number(v))}`,"Spent"]} />
                     <Line type="monotone" dataKey="amount" stroke="#10b981" strokeWidth={2.5} dot={{r:3,fill:"#10b981",strokeWidth:0}} activeDot={{r:5}} />
                   </LineChart>
                 </ResponsiveContainer>
@@ -373,7 +375,7 @@ const DashboardContent = () => {
                       <p className="text-sm font-medium text-gray-900 truncate">{exp.title}</p>
                       <p className="text-xs text-gray-400">{exp.category} · {formatDate(exp.date)}</p>
                     </div>
-                    <span className="text-sm font-semibold text-red-500 shrink-0">-₹{exp.amount.toLocaleString()}</span>
+                    <span className="text-sm font-semibold text-red-500 shrink-0">-{formatINR(exp.amount)}</span>
                     <ExpenseRowActions onEdit={() => navigate(`/editexpense/${exp._id}`)} onDelete={() => handleDelete(exp._id)} deleting={deletingId === exp._id} />
                   </div>
                 ))}
@@ -381,38 +383,16 @@ const DashboardContent = () => {
             )}
           </div>
 
-        {budgetItems.length > 0 && (
-            <div className="hidden sm:block bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">Category Budget Tracker</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {budgetItems.map((item)=>{
-                  const pct=Math.min((item.spent/item.limit)*100,100);
-                  const over=item.spent>item.limit;
-               return (
-                    <div key={item.category} className="bg-gray-50 rounded-xl p-3">
-                      <div className="flex justify-between mb-1.5">
-                        <span className={`text-xs font-medium ${over?"text-red-500":"text-gray-700"}`}>{item.category}{over?" ⚠":""}</span>
-                        <span className="text-xs text-gray-400">₹{item.spent.toLocaleString()} / ₹{item.limit.toLocaleString()}</span>
-                      </div>
-                      <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                        <div className="h-full rounded-full transition-all duration-500" style={{width:`${pct}%`,background:budgetBarColor(item.spent,item.limit)}} />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
         </>)}
       </div>
 
       {showBudgetModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={(e)=>{if(e.target===e.currentTarget)setShowBudgetModal(false);}}>
-          <div className="w-full max-w-sm bg-white rounded-2xl p-6 shadow-xl">
-            <h3 className="text-gray-900 font-semibold text-lg mb-1">Set Monthly Budget</h3>
+          <div role="dialog" aria-modal="true" aria-labelledby="budget-title" className="w-full max-w-sm bg-white rounded-2xl p-6 shadow-xl">
+            <h3 id="budget-title" className="text-gray-900 font-semibold text-lg mb-1">Set Monthly Budget</h3>
             <p className="text-gray-400 text-sm mb-5">Set a spending cap for the current month.</p>
-            <input type="number" min="0" value={budgetInput} autoFocus
+            <input type="number" min="0" step="0.01" aria-label="Monthly budget in rupees" value={budgetInput} autoFocus
               onChange={(e)=>setBudgetInput(e.target.value)}
               onKeyDown={(e)=>{if(e.key==="Enter")handleSaveBudget();if(e.key==="Escape")setShowBudgetModal(false);}}
               placeholder="e.g. 20000"
@@ -430,6 +410,7 @@ const DashboardContent = () => {
           </div>
         </div>
       )}
+      <ConfirmModal />
     </DashboardLayout>
   );
 };

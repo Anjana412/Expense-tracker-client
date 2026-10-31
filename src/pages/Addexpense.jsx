@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { addExpense } from "../api/api";
 import { toast } from "react-toastify";
+import { errMsg } from "../utils/format";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import BackToDashboardButton from "../components/layout/BackToDashboardButton";
 
@@ -11,13 +12,17 @@ const AddExpense = () => {
 
   const [expense, setExpense] = useState({ title: "", amount: "", category: "", date: "", description: "" });
 
+  const [saving, setSaving] = useState(false);
+
   const handleChange =(e)=>setExpense({ ...expense, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (saving) return; // ignore double clicks
+    setSaving(true);
     try {
       const res=await addExpense({
-        title: expense.title,
+        title: expense.title.trim(),
         amount: Number(expense.amount),
         category: expense.category,
         date: expense.date,
@@ -28,7 +33,9 @@ const AddExpense = () => {
       setExpense({ title: "", amount: "", category: "", date: "", description: "" });
     } 
     catch (error) {
-      toast.error(error.response?.data?.message || "Failed to add expense");
+      toast.error(errMsg(error, "Failed to add expense")); // form keeps what the user typed
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -39,18 +46,18 @@ const AddExpense = () => {
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className={labelClass}>Expense title</label>
-              <input type="text" name="title" value={expense.title} onChange={handleChange}
-                placeholder="e.g. Swiggy order" required className={inputClass} />
+              <label htmlFor="ex-title" className={labelClass}>Expense title</label>
+              <input type="text" id="ex-title" name="title" value={expense.title} onChange={handleChange}
+                placeholder="e.g. Swiggy order" required maxLength={100} className={inputClass} />
             </div>
             <div>
-              <label className={labelClass}>Amount (₹)</label>
-              <input type="number" name="amount" value={expense.amount} onChange={handleChange}
-                placeholder="0" required min="1" className={inputClass} />
+              <label htmlFor="ex-amount" className={labelClass}>Amount (₹)</label>
+              <input type="number" id="ex-amount" name="amount" value={expense.amount} onChange={handleChange}
+                placeholder="0.00" required min="0.01" step="0.01" className={inputClass} />
             </div>
             <div>
-              <label className={labelClass}>Category</label>
-              <select name="category" value={expense.category} onChange={handleChange} required className={inputClass}>
+              <label htmlFor="ex-category" className={labelClass}>Category</label>
+              <select id="ex-category" name="category" value={expense.category} onChange={handleChange} required className={inputClass}>
                 <option value="">Select category</option>
                 {["Food","Transport","Shopping","Bills","Health","Education","Entertainment","Other"].map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -58,13 +65,13 @@ const AddExpense = () => {
               </select>
             </div>
             <div>
-              <label className={labelClass}>Date</label>
-              <input type="date" name="date" value={expense.date} onChange={handleChange}
+              <label htmlFor="ex-date" className={labelClass}>Date</label>
+              <input type="date" id="ex-date" name="date" value={expense.date} onChange={handleChange}
                 required className={inputClass} />
             </div>
             <div>
-              <label className={labelClass}>Description <span className="text-gray-500 font-normal">(optional)</span></label>
-              <textarea rows={3} name="description" value={expense.description} onChange={handleChange}
+              <label htmlFor="ex-desc" className={labelClass}>Description <span className="text-gray-500 font-normal">(optional)</span></label>
+              <textarea rows={3} id="ex-desc" name="description" value={expense.description} onChange={handleChange}
                 placeholder="Add a note…" className={`${inputClass} resize-none`} />
             </div>
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
@@ -72,8 +79,8 @@ const AddExpense = () => {
                 onClick={() => setExpense({ title: "", amount: "", category: "", date: "", description: "" })}
                 className="flex-1 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-xl py-3 text-gray-700  font-medium cursor-pointer transition-colors">Clear
                 </button>
-              <button type="submit"
-                className="flex-1 bg-violet-500 hover:bg-violet-700 border-none rounded-xl py-3 text-white  font-semibold cursor-pointer transition-colors shadow-sm">Save Expense
+              <button type="submit" disabled={saving}
+                className="flex-1 bg-violet-500 hover:bg-violet-700 border-none rounded-xl py-3 text-white  font-semibold cursor-pointer transition-colors shadow-sm disabled:opacity-60 disabled:cursor-not-allowed">{saving ? "Saving…" : "Save Expense"}
               </button>
             </div>
           </form>

@@ -98,10 +98,6 @@ const LoginForm = ({ onSwitch }) => {
             </div>
           </div>
 
-          <div className="flex justify-end -mt-1">
-            <button type="button" className="bg-transparent border-none p-0 cursor-pointer text-[12.5px] text-violet-600 font-medium hover:text-violet-800 transition-colors"> Forgot password?</button>
-          </div>
-
           <button type="submit" disabled={loading}
             className="w-full bg-linear-to-br from-violet-600 to-purple-500 text-white text-[14.5px] font-bold py-3.25 border-none rounded-xl cursor-pointer transition-all shadow-[0_4px_16px_rgba(124,58,237,0.35)] mt-1 flex items-center justify-center gap-2 hover:opacity-90 hover:-translate-y-px hover:shadow-[0_8px_24px_rgba(124,58,237,0.4)] active:translate-y-0 disabled:opacity-65 disabled:cursor-not-allowed">
             {loading? <span className="w-4.5 h-4.5 border-[2.5px] border-white/40 border-t-white rounded-full animate-spin inline-block" />: 'Log In'}
@@ -201,9 +197,9 @@ const RegisterForm = ({ onSwitch }) => {
 );
 };
 
- const AuthPage = () => {
+ const AuthPage = ({ initialMode = "login" }) => {
   
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(initialMode !== "register");
 
   const [bannerGone, setBannerGone] = useState(false);
 

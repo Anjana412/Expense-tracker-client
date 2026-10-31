@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import MobileNavbar from "./MobileNavbar";
-import { getStoredUser, getVisibleNav, roleLabel } from "./navConfig";
+import { getStoredUser, getVisibleNav, roleLabel, getInitials } from "./navConfig";
 
 export { NAV_CONFIG, getVisibleNav, roleLabel, getStoredUser, getDashboardPath } from "./navConfig";
 export { default as BackToDashboardButton } from "./BackToDashboardButton";
@@ -23,7 +23,7 @@ const DashboardLayout = ({ children, title }) => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    navigate("/");
+    navigate("/login");
   };
 
   return (
@@ -37,6 +37,16 @@ const DashboardLayout = ({ children, title }) => {
            <div className="flex-1 min-w-0">
               <h1 className="text-base md:text-lg font-semibold text-gray-900 truncate"> {title || activeLabel} </h1>
               <p className="text-[11px] text-gray-500 mt-0.5 hidden sm:block"> {roleLabel(user.role)} · Expense Meter</p>
+            </div>
+            {/* Phones have no sidebar, so show who is signed in here (desktop shows it in the sidebar). */}
+            <div className="md:hidden flex items-center gap-2 shrink-0 min-w-0" title={`${user.name} · ${roleLabel(user.role)}`}>
+              <div className="text-right min-w-0">
+                <p className="text-[12px] font-medium text-gray-900 truncate max-w-28 leading-tight">{user.name}</p>
+                <p className="text-[11px] text-gray-500 leading-tight">{roleLabel(user.role)}</p>
+              </div>
+              <div className="w-8 h-8 min-w-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-semibold text-white" aria-hidden="true">
+                {getInitials(user.name)}
+              </div>
             </div>
         </header>
         <main className="flex-1 overflow-y-auto overflow-x-hidden">{children}</main>

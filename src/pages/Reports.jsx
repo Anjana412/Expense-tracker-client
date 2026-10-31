@@ -3,6 +3,7 @@ import { getExpenses, getExpenseSummary, getMonthlyTrend } from "../api/api";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import BackToDashboardButton from "../components/layout/BackToDashboardButton";
 import {CHART_TOOLTIP_STYLE, CHART_AXIS_TICK, CHART_GRID_STROKE, CHART_COLORS } from "../components/ui/chartTheme";
+import { formatINR, formatDate, downloadCSV, dateKey, monthOf, yearOf } from "../utils/format";
 import {ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip,PieChart, Pie, Cell, Legend, CartesianGrid,} from "recharts";
 
 
@@ -31,44 +32,30 @@ const Reports = () => {
   const [categoryFilter, setCategoryFilter]= useState("All");
 
   useEffect(() => {
-    setLoading(true);
-    setLoadError(null);
-    let done = 0;
-    const finish = () => {
-      done += 1;
-      if (done === 3) setLoading(false);
-    };
-
-    getExpenses()
-      .then((r) => setExpenses(normalizeExpenses(r.data)))
-      .catch((err) => {
+    const trendYear = selectedYear === "all" ? currentYear : Number(selectedYear);
+    Promise.allSettled([getExpenses(), getExpenseSummary(), getMonthlyTrend(trendYear)]).then(([e, sm, t]) => {
+      if (e.status === "fulfilled") {
+        setExpenses(normalizeExpenses(e.value.data));
+        setLoadError(null);
+      } else {
         setExpenses([]);
-        setLoadError(err.response?.data?.message || "Could not load expenses");
-      })
-      .finally(finish);
-
-    getExpenseSummary()
-      .then((r) => {
-        setSummary(r.data?.byCategory || []);
-        setOverall(r.data?.overall ?? null);
-      })
-      .catch(() => {})
-      .finally(finish);
-
-    const trendYear = selectedYear === "all" ? currentYear:Number(selectedYear);
-    getMonthlyTrend(trendYear)
-      .then((r) => setMonthlyTrend(r.data?.trend || []))
-      .catch(() => setMonthlyTrend([]))
-      .finally(finish);
+        setLoadError(e.reason?.response?.data?.message || "Could not load expenses");
+      }
+      if (sm.status === "fulfilled") {
+        setSummary(sm.value.data?.byCategory || []);
+        setOverall(sm.value.data?.overall ?? null);
+      }
+      setMonthlyTrend(t.status === "fulfilled" ? t.value.data?.trend || [] : []);
+      setLoading(false);
+    });
   }, [selectedYear, currentYear]);
 
   const filteredExpenses = useMemo(() => {
     return expenses.filter((e) => {
-      const d = new Date(e.date);
-      if (Number.isNaN(d.getTime())) return false;
+      if (Number.isNaN(new Date(e.date).getTime())) return false;
       const yearOk=
-        selectedYear==="all" || d.getFullYear() === Number(selectedYear);
-      const monthOk=selectedMonth === "all" || d.getMonth()===Number(selectedMonth);
+        selectedYear==="all" || yearOf(e.date) === Number(selectedYear);
+      const monthOk=selectedMonth === "all" || monthOf(e.date)===Number(selectedMonth);
       const catOk = categoryFilter === "All" || e.category === categoryFilter;
       return yearOk && monthOk && catOk;
     });
@@ -98,7 +85,7 @@ const Reports = () => {
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const totals = Array(12).fill(0);
     filteredExpenses.forEach((e) => {
-      totals[new Date(e.date).getMonth()] += expenseAmount(e);
+      totals[monthOf(e.date)] += expenseAmount(e);
     });
     return months.map((month, i) => ({ month, amount: totals[i] }));
   }, [monthlyTrend, filteredExpenses, selectedYear]);
@@ -112,24 +99,11 @@ const Reports = () => {
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .slice(0, 10);
 
-  const exportCSV = () => {
-    const rows = [
-      ["Title", "Amount","Category", "Date", "Description"],
-      ...filteredExpenses.map((e) => [
-        e.title,
-        expenseAmount(e),
-        e.category,
-        new Date(e.date).toLocaleDateString(),
-        e.description || "",
-      ]),
-    ];
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(
-      new Blob([rows.map((r) => r.join(",")).join("\n")], { type: "text/csv;charset=utf-8;" })
-    );
-    link.download = "expense-report.csv";
-    link.click();
-  };
+  const exportCSV = () =>
+    downloadCSV("expense-report.csv", [
+      ["Title", "Amount", "Category", "Date", "Description"],
+      ...filteredExpenses.map((e) => [e.title, expenseAmount(e), e.category, dateKey(e.date), e.description || ""]),
+    ]);
 
   if (loading) {
     return (
@@ -164,7 +138,7 @@ const Reports = () => {
         <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Filters</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <select value={selectedYear} onChange={(e) =>setSelectedYear(e.target.value === "all" ? "all" : Number(e.target.value))}
+            <select value={selectedYear} onChange={(e) => { setLoading(true); setSelectedYear(e.target.value === "all" ? "all" : Number(e.target.value)); }}
               className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 bg-white outline-none focus:border-emerald-400">
               <option value="all">All Years</option>
               {years.filter((y) => y !== "all").map((y) => (
@@ -188,9 +162,9 @@ const Reports = () => {
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {[
-            {label: "Total Spent", value:`₹${totalSpent.toLocaleString()}`, color: "text-emerald-600", bg: "bg-emerald-50", icon: "ti-wallet" },
+            {label: "Total Spent", value:`${formatINR(totalSpent)}`, color: "text-emerald-600", bg: "bg-emerald-50", icon: "ti-wallet" },
             {label: "Transactions", value: String(totalTransactions), color: "text-blue-600", bg: "bg-blue-50", icon: "ti-file-invoice" },
-            {label:"Highest Expense", value: highestExpense ?`₹${expenseAmount(highestExpense).toLocaleString()}` : "₹0", color: "text-red-600", bg: "bg-red-50", icon: "ti-trending-up" },
+            {label:"Highest Expense", value: highestExpense ?`${formatINR(expenseAmount(highestExpense))}` : "₹0", color: "text-red-600", bg: "bg-red-50", icon: "ti-trending-up" },
             {label: "Top Category", value: topCategory, color: "text-amber-600", bg: "bg-amber-50", icon: "ti-award" },
           ].map((s) => (
             <div key={s.label} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow hover:bg-gray-100 min-w-0">
@@ -211,10 +185,10 @@ const Reports = () => {
             <h3 className="text-base font-semibold text-gray-900 mb-4">Aggregated Summary</h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
               {[
-                {label: "All-time total", value:`₹${Number(overall.totalAmount).toLocaleString()}`,color: "text-emerald-600" },
+                {label: "All-time total", value:`${formatINR(Number(overall.totalAmount))}`,color: "text-emerald-600" },
                 {label: "All expenses",value: String(overall.totalCount), color: "text-gray-900" },
-                {label: "Avg/expense", value:`₹${Number(overall.avgAmount).toLocaleString()}`,color: "text-amber-600" },
-                {label: "Highest single",value:`₹${Number(overall.maxAmount).toLocaleString()}`, color:"text-red-600" },
+                {label: "Avg/expense", value:`${formatINR(Number(overall.avgAmount))}`,color: "text-amber-600" },
+                {label: "Highest single",value:`${formatINR(Number(overall.maxAmount))}`, color:"text-red-600" },
               ].map((s) => (
                 <div key={s.label} className="bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 min-w-0">
                   <p className="text-[13px] text-gray-700 mb-1">{s.label}</p>
@@ -236,10 +210,10 @@ const Reports = () => {
                     {summary.map((row) => (
                       <tr key={row.category} className="hover:bg-gray-50">
                         <td className="px-3 py-2.5 font-medium text-gray-900">{row.category}</td>
-                        <td className="px-3 py-2.5 text-emerald-600 font-semibold">₹{Number(row.totalAmount).toLocaleString()}</td>
+                        <td className="px-3 py-2.5 text-emerald-600 font-semibold">{formatINR(Number(row.totalAmount))}</td>
                         <td className="px-3 py-2.5 text-gray-800">{row.count}</td>
-                        <td className="px-3 py-2.5 text-amber-600">₹{Number(row.avgAmount).toLocaleString()}</td>
-                        <td className="px-3 py-2.5 text-red-600">₹{Number(row.maxAmount).toLocaleString()}</td>
+                        <td className="px-3 py-2.5 text-amber-600">{formatINR(Number(row.avgAmount))}</td>
+                        <td className="px-3 py-2.5 text-red-600">{formatINR(Number(row.maxAmount))}</td>
                     </tr>
                     ))}
                </tbody>
@@ -258,7 +232,7 @@ const Reports = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} vertical={false} />
                   <XAxis dataKey="month" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />
                   <YAxis tick={CHART_AXIS_TICK} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} axisLine={false} tickLine={false} width={48} />
-                  <Tooltip contentStyle={CHART_TOOLTIP_STYLE} formatter={(v) => [`₹${Number(v).toLocaleString()}`, "Spent"]} />
+                  <Tooltip contentStyle={CHART_TOOLTIP_STYLE} formatter={(v) => [`${formatINR(Number(v))}`, "Spent"]} />
                   <Bar dataKey="amount" radius={[6, 6, 0, 0]} fill="#10b981" />
                 </BarChart>
               </ResponsiveContainer>
@@ -280,7 +254,7 @@ const Reports = () => {
                         <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} formatter={(v) => [`₹${Number(v).toLocaleString()}`, "Amount"]} />
+                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} formatter={(v) => [`${formatINR(Number(v))}`, "Amount"]} />
                     <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12, color: "#374151" }} />
                   </PieChart>
                 </ResponsiveContainer>
@@ -314,9 +288,9 @@ const Reports = () => {
                       <td className="px-4 py-3 hidden sm:table-cell">
                         <span className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded-full">{e.category}</span>
                       </td>
-                      <td className="px-4 py-3 font-semibold text-emerald-600">₹{expenseAmount(e).toLocaleString()}</td>
+                      <td className="px-4 py-3 font-semibold text-emerald-600">{formatINR(expenseAmount(e))}</td>
                       <td className="px-4 py-3 text-gray-600 hidden md:table-cell whitespace-nowrap">
-                        {new Date(e.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                        {formatDate(e.date)}
                       </td>
                     </tr>
                   ))}
